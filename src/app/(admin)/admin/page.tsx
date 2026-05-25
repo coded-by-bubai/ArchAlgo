@@ -83,9 +83,9 @@ function AdminWriteArticleContent() {
     const text = textarea.value
     const selected = text.substring(start, end)
     const replacement = before + selected + after
-    
+
     setContent(text.substring(0, start) + replacement + text.substring(end))
-    
+
     // Maintain cursor focus and highlight range
     textarea.focus()
     setTimeout(() => {
@@ -107,9 +107,9 @@ function AdminWriteArticleContent() {
         method: "POST",
         body: formData,
       })
-      
+
       if (!response.ok) throw new Error("Upload failed")
-      
+
       const data = await response.json()
       setCoverImage(data.url)
     } catch (error) {
@@ -138,10 +138,10 @@ function AdminWriteArticleContent() {
         .replace(/https?:\/\/[^\s]+/g, "") // Remove raw URLs
         .replace(/(?:^|\n)(?:#{1,6}\s+)/g, "\n") // Remove headers
         .replace(/[*_`~#]/g, "") // Remove inline formatting
-      
+
       const lines = cleanContent.split("\n").map(l => l.trim()).filter(l => l.length > 0)
       const excerpt = (lines[0] || "").substring(0, 150)
-      
+
       let article;
       if (editingArticleId) {
         article = await updateArticle(editingArticleId, {
@@ -197,25 +197,25 @@ function AdminWriteArticleContent() {
     ),
     a: ({ children, href, ...props }: any) => {
       const isImageUrl = href && (/\.(jpeg|jpg|gif|png|webp|svg|bmp)(?:\?.*)?$/i.test(href) || href.includes("googleusercontent.com"))
-      
+
       if (isImageUrl) {
         return (
           <span className="block my-8 rounded-xl overflow-hidden border border-outline-variant/30 bg-surface-container-low shadow-lg max-w-full">
-            <img 
-              src={href} 
-              alt={typeof children === 'string' ? children : "Article Image"} 
+            <img
+              src={href}
+              alt={typeof children === 'string' ? children : "Article Image"}
               className="w-full object-cover max-h-[450px] opacity-90 hover:opacity-100 transition-opacity duration-300"
               {...props}
             />
           </span>
         )
       }
-      
+
       return (
-        <a 
-          href={href} 
-          target="_blank" 
-          rel="noopener noreferrer" 
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-primary-fixed hover:underline underline-offset-4 decoration-primary-fixed/30 hover:decoration-primary-fixed transition-all font-medium cursor-pointer"
           {...props}
         >
@@ -225,9 +225,9 @@ function AdminWriteArticleContent() {
     },
     img: ({ src, alt, ...props }: any) => (
       <span className="block my-8 rounded-xl overflow-hidden border border-outline-variant/30 bg-surface-container-low shadow-lg max-w-full">
-        <img 
-          src={src} 
-          alt={alt} 
+        <img
+          src={src}
+          alt={alt}
           className="w-full object-cover max-h-[450px] opacity-90 hover:opacity-100 transition-opacity duration-300"
           {...props}
         />
@@ -243,7 +243,7 @@ function AdminWriteArticleContent() {
           <div className="flex items-center gap-4">
             <Link className="font-headline-lg text-headline-lg font-bold tracking-tighter text-primary-fixed dark:text-primary-fixed-dim hover:backdrop-brightness-125 transition-all duration-300 scale-95 active:scale-90 flex items-center gap-2" href="/">
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>edit_square</span>
-              DevScale Admin
+              ArchAlgo Admin
             </Link>
           </div>
           <div className="hidden md:flex items-center gap-6">
@@ -257,7 +257,7 @@ function AdminWriteArticleContent() {
               <span className="material-symbols-outlined text-[18px]">close</span>
               Exit
             </Link>
-            <button 
+            <button
               onClick={handlePublish}
               disabled={loading}
               className="font-label-sm text-label-sm bg-primary-container text-on-primary-fixed px-5 py-1.5 rounded-DEFAULT font-bold hover:bg-surface-tint transition-colors scale-95 active:scale-90 disabled:opacity-50 cursor-pointer"
@@ -274,13 +274,13 @@ function AdminWriteArticleContent() {
           {/* Cover Image URL zone */}
           {coverImage ? (
             <div className="relative group w-full h-48 rounded-xl overflow-hidden border border-outline-variant/30 bg-surface-container-low shadow-sm">
-              <Image 
-                src={coverImage} 
-                alt="Cover Preview" 
-                fill 
-                className="object-cover opacity-80" 
+              <Image
+                src={coverImage}
+                alt="Cover Preview"
+                fill
+                className="object-cover opacity-80"
               />
-              <button 
+              <button
                 onClick={() => setCoverImage("")}
                 className="absolute right-3 top-3 bg-background/80 hover:bg-background text-on-surface p-1.5 rounded-full border border-outline-variant/30 flex items-center justify-center transition-colors shadow-sm"
               >
@@ -288,7 +288,7 @@ function AdminWriteArticleContent() {
               </button>
             </div>
           ) : (
-            <div 
+            <div
               className="relative group w-full rounded-xl border border-dashed border-outline-variant/50 hover:border-primary-fixed bg-surface-container-low/40 p-6 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
             >
@@ -298,8 +298,8 @@ function AdminWriteArticleContent() {
               <p className="bg-transparent border-none text-center font-label-sm text-xs text-on-surface-variant group-hover:text-primary-fixed outline-none w-full max-w-md">
                 {uploadingImage ? "Uploading..." : "Click to upload Cover Image"}
               </p>
-              <input 
-                type="file" 
+              <input
+                type="file"
                 ref={fileInputRef}
                 onChange={handleImageUpload}
                 accept="image/*"
@@ -310,9 +310,9 @@ function AdminWriteArticleContent() {
 
           {/* Title Input */}
           <div className="relative">
-            <input 
-              className="w-full bg-transparent border-none border-b-2 border-outline-variant/30 py-4 outline-none text-on-surface transition-all focus:border-primary-fixed font-headline-xl text-headline-xl font-bold tracking-tighter" 
-              placeholder="Article Title" 
+            <input
+              className="w-full bg-transparent border-none border-b-2 border-outline-variant/30 py-4 outline-none text-on-surface transition-all focus:border-primary-fixed font-headline-xl text-headline-xl font-bold tracking-tighter"
+              placeholder="Article Title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -331,18 +331,17 @@ function AdminWriteArticleContent() {
                   key={tag}
                   type="button"
                   onClick={() => handleTagToggle(tag)}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all font-label-sm text-xs cursor-pointer ${
-                    active 
-                      ? "border-primary-fixed bg-primary-fixed/10 text-primary-fixed" 
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all font-label-sm text-xs cursor-pointer ${active
+                      ? "border-primary-fixed bg-primary-fixed/10 text-primary-fixed"
                       : "border-outline-variant/30 hover:border-primary-fixed hover:text-primary-fixed text-on-surface bg-surface-container-lowest"
-                  }`}
+                    }`}
                 >
                   {tag}
                   {active && <span className="material-symbols-outlined text-[12px]">close</span>}
                 </button>
               )
             })}
-            
+
             {/* Custom Tag Input Toggle */}
             {showCustomTagInput ? (
               <form onSubmit={handleAddCustomTag} className="flex items-center gap-1">
@@ -358,7 +357,7 @@ function AdminWriteArticleContent() {
                 <button type="button" onClick={() => setShowCustomTagInput(false)} className="text-on-surface-variant hover:text-on-surface p-1 text-xs font-label-sm">Cancel</button>
               </form>
             ) : (
-              <button 
+              <button
                 type="button"
                 onClick={() => setShowCustomTagInput(true)}
                 className="flex items-center justify-center w-6 h-6 rounded-full border border-dashed border-outline-variant/50 hover:border-primary-fixed text-on-surface-variant hover:text-primary-fixed transition-all"
@@ -388,47 +387,47 @@ function AdminWriteArticleContent() {
           <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/30 bg-surface-container-low/30">
             {/* Toolbar Insertion Helpers */}
             <div className="flex items-center gap-1">
-              <button 
+              <button
                 type="button"
-                onClick={() => insertMarkdown("**", "**")} 
-                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all" 
+                onClick={() => insertMarkdown("**", "**")}
+                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all"
                 title="Bold"
                 disabled={previewMode === "preview"}
               >
                 <span className="material-symbols-outlined text-[20px]">format_bold</span>
               </button>
-              <button 
+              <button
                 type="button"
-                onClick={() => insertMarkdown("*", "*")} 
-                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all" 
+                onClick={() => insertMarkdown("*", "*")}
+                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all"
                 title="Italic"
                 disabled={previewMode === "preview"}
               >
                 <span className="material-symbols-outlined text-[20px]">format_italic</span>
               </button>
               <div className="w-px h-4 bg-outline-variant/30 mx-2"></div>
-              <button 
+              <button
                 type="button"
-                onClick={() => insertMarkdown("```javascript\n", "\n```")} 
-                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all" 
+                onClick={() => insertMarkdown("```javascript\n", "\n```")}
+                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all"
                 title="Code Block"
                 disabled={previewMode === "preview"}
               >
                 <span className="material-symbols-outlined text-[20px]">code_blocks</span>
               </button>
-              <button 
+              <button
                 type="button"
-                onClick={() => insertMarkdown("[", "](url)")} 
-                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all" 
+                onClick={() => insertMarkdown("[", "](url)")}
+                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all"
                 title="Link"
                 disabled={previewMode === "preview"}
               >
                 <span className="material-symbols-outlined text-[20px]">link</span>
               </button>
-              <button 
+              <button
                 type="button"
-                onClick={() => insertMarkdown("![alt](", ")")} 
-                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all" 
+                onClick={() => insertMarkdown("![alt](", ")")}
+                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all"
                 title="Image"
                 disabled={previewMode === "preview"}
               >
@@ -441,22 +440,20 @@ function AdminWriteArticleContent() {
               <button
                 type="button"
                 onClick={() => setPreviewMode("edit")}
-                className={`px-3 py-1 font-label-sm text-xs rounded transition-colors cursor-pointer ${
-                  previewMode === "edit" 
-                    ? "bg-surface text-primary-fixed font-bold shadow-sm" 
+                className={`px-3 py-1 font-label-sm text-xs rounded transition-colors cursor-pointer ${previewMode === "edit"
+                    ? "bg-surface text-primary-fixed font-bold shadow-sm"
                     : "text-on-surface-variant hover:text-on-surface"
-                }`}
+                  }`}
               >
                 Write
               </button>
               <button
                 type="button"
                 onClick={() => setPreviewMode("preview")}
-                className={`px-3 py-1 font-label-sm text-xs rounded transition-colors cursor-pointer ${
-                  previewMode === "preview" 
-                    ? "bg-surface text-primary-fixed font-bold shadow-sm" 
+                className={`px-3 py-1 font-label-sm text-xs rounded transition-colors cursor-pointer ${previewMode === "preview"
+                    ? "bg-surface text-primary-fixed font-bold shadow-sm"
                     : "text-on-surface-variant hover:text-on-surface"
-                }`}
+                  }`}
               >
                 Preview
               </button>
@@ -466,7 +463,7 @@ function AdminWriteArticleContent() {
           {/* Text Area vs Live Markdown Render Frame */}
           <div className="w-full flex-grow flex">
             {previewMode === "edit" ? (
-              <textarea 
+              <textarea
                 ref={textareaRef}
                 className="w-full flex-grow p-6 bg-transparent font-body-md text-body-md text-on-surface outline-none resize-none hide-scrollbar min-h-[400px] leading-relaxed placeholder-outline-variant/60"
                 placeholder="Start writing article content in Markdown format..."

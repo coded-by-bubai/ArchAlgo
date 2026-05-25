@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${article.title} | DevScale`,
+    title: `${article.title} | ArchAlgo`,
     description: article.excerpt || article.content.substring(0, 160),
     openGraph: {
       title: article.title,
@@ -64,23 +64,23 @@ export default async function ArticlePage({ params }: Props) {
   } : null
 
   const tagSlugs = article.tags.map(t => t.slug)
-  const relatedArticles = tagSlugs.length > 0 
+  const relatedArticles = tagSlugs.length > 0
     ? await db.article.findMany({
-        where: {
-          published: true,
-          id: { not: article.id },
-          tags: {
-            some: {
-              slug: { in: tagSlugs }
-            }
+      where: {
+        published: true,
+        id: { not: article.id },
+        tags: {
+          some: {
+            slug: { in: tagSlugs }
           }
-        },
-        take: 3,
-        include: {
-          tags: true,
-          author: { select: { name: true } }
         }
-      })
+      },
+      take: 3,
+      include: {
+        tags: true,
+        author: { select: { name: true } }
+      }
+    })
     : []
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
@@ -117,7 +117,7 @@ export default async function ArticlePage({ params }: Props) {
           <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent"></div>
         </div>
       )}
-      
+
       <ArticlesContent article={article} sessionUser={sessionUser} relatedArticles={relatedArticles} />
     </div>
   )

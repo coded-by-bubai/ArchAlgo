@@ -14,7 +14,7 @@ export default async function SignInPage({ searchParams }: Props) {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-primary-fixed/20 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
 
       <div className="w-full max-w-md glass-panel border border-outline-variant/30 rounded-2xl p-8 md:p-10 shadow-2xl relative overflow-hidden bg-surface-container-low/50">
-        
+
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-4 hover:scale-105 transition-transform">
@@ -23,7 +23,7 @@ export default async function SignInPage({ searchParams }: Props) {
             </span>
           </Link>
           <h1 className="font-headline-lg text-[28px] text-on-surface mb-2 tracking-tight">
-            Welcome to DevScale
+            Welcome to ArchAlgo
           </h1>
           <p className="font-body-md text-on-surface-variant text-sm">
             Sign in to join the technical discussion, publish articles, and engage with the community.
@@ -56,8 +56,8 @@ export default async function SignInPage({ searchParams }: Props) {
               await signIn("github", { redirectTo: "/" })
             }}
           >
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="w-full flex items-center justify-center gap-3 bg-[#24292F] hover:bg-[#24292F]/90 text-white font-label-md py-3.5 px-4 rounded-xl transition-all shadow-sm border border-[#24292F]/20 cursor-pointer group"
             >
               <svg height="24" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="24" className="fill-current transition-transform group-hover:scale-110">
@@ -73,8 +73,8 @@ export default async function SignInPage({ searchParams }: Props) {
               await signIn("google", { redirectTo: "/" })
             }}
           >
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-gray-900 font-label-md py-3.5 px-4 rounded-xl transition-all shadow-sm border border-gray-200 cursor-pointer group"
             >
               <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="transition-transform group-hover:scale-110">

@@ -32,7 +32,7 @@ export default function DashboardClient({ initialArticles }: { initialArticles: 
           <div className="flex items-center gap-4">
             <Link className="font-headline-lg text-headline-lg font-bold tracking-tighter text-primary-fixed dark:text-primary-fixed-dim hover:backdrop-brightness-125 transition-all duration-300 scale-95 active:scale-90 flex items-center gap-2" href="/">
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
-              DevScale Admin
+              ArchAlgo Admin
             </Link>
           </div>
           <div className="hidden md:flex items-center gap-6">
@@ -86,8 +86,8 @@ export default function DashboardClient({ initialArticles }: { initialArticles: 
                         {article.tags && article.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1.5">
                             {article.tags.map((tag: any) => (
-                              <span 
-                                key={tag.id} 
+                              <span
+                                key={tag.id}
                                 className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-primary-fixed/10 text-primary-fixed border border-primary-fixed/20"
                               >
                                 {tag.name}
@@ -122,7 +122,7 @@ export default function DashboardClient({ initialArticles }: { initialArticles: 
                               </Link>
                             );
                           })()}
-                          <button 
+                          <button
                             disabled={isPending}
                             onClick={() => handleDelete(article.id)}
                             className="p-1.5 text-on-surface-variant hover:text-error transition-colors rounded" title="Delete"

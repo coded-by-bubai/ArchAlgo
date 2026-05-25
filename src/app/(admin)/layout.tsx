@@ -28,7 +28,7 @@ export default async function AdminGroupLayout({
               </span>
             </div>
             <h1 className="font-headline-lg text-[26px] text-on-surface mb-2 tracking-tight">
-              DevScale Admin Gateway
+              ArchAlgo Admin Gateway
             </h1>
             <p className="font-body-md text-on-surface-variant text-xs leading-relaxed max-w-xs mx-auto">
               Private access point for editorial administrators. Administrative members must sign in with their secure credentials.
@@ -84,12 +84,12 @@ export default async function AdminGroupLayout({
                   <label className="text-[10px] text-on-surface-variant font-label-sm uppercase tracking-wider pl-1">Admin Email</label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">mail</span>
-                    <input 
-                      name="email" 
-                      type="email" 
-                      required 
-                      placeholder="admin-email@devscale.com" 
-                      className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl pl-10 pr-4 py-3 text-sm text-on-surface focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-outline-variant" 
+                    <input
+                      name="email"
+                      type="email"
+                      required
+                      placeholder="admin-email@archalgo.com"
+                      className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl pl-10 pr-4 py-3 text-sm text-on-surface focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-outline-variant"
                     />
                   </div>
                 </div>
@@ -99,12 +99,12 @@ export default async function AdminGroupLayout({
                   <label className="text-[10px] text-on-surface-variant font-label-sm uppercase tracking-wider pl-1">Secret Key / Password</label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">lock</span>
-                    <input 
-                      name="password" 
-                      type="password" 
-                      required 
-                      placeholder="••••••••" 
-                      className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl pl-10 pr-4 py-3 text-sm text-on-surface focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-outline-variant" 
+                    <input
+                      name="password"
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl pl-10 pr-4 py-3 text-sm text-on-surface focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-outline-variant"
                     />
                   </div>
                 </div>
@@ -127,7 +127,7 @@ export default async function AdminGroupLayout({
               className="text-xs text-on-surface-variant hover:text-primary-fixed transition-colors inline-flex items-center gap-1.5 font-label-sm"
             >
               <span className="material-symbols-outlined text-sm">arrow_back</span>
-              Back to DevScale Home
+              Back to ArchAlgo Home
             </Link>
           </div>
         </div>

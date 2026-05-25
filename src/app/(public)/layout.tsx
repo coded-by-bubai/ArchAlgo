@@ -16,7 +16,7 @@ export default async function PublicLayout({
         <div className="flex justify-between items-center h-16 px-gutter max-w-container-max mx-auto">
           <div className="flex items-center gap-8">
             <Link className="font-headline-lg text-headline-lg font-bold tracking-tighter text-primary-fixed dark:text-primary-fixed-dim scale-95 active:scale-90 transition-transform hover:backdrop-brightness-125" href="/">
-              DevScale
+              ArchAlgo
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link className="text-on-surface-variant hover:text-primary-fixed transition-colors font-label-sm text-label-sm" href="/topics/dsa">DSA</Link>
@@ -39,12 +39,12 @@ export default async function PublicLayout({
                 )}
                 <div className="group relative flex items-center">
                   {user.image ? (
-                    <Image 
-                      src={user.image} 
-                      alt={user.name || "User Profile"} 
-                      width={32} 
-                      height={32} 
-                      className="rounded-full border border-outline-variant/40 cursor-pointer object-cover" 
+                    <Image
+                      src={user.image}
+                      alt={user.name || "User Profile"}
+                      width={32}
+                      height={32}
+                      className="rounded-full border border-outline-variant/40 cursor-pointer object-cover"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/40 flex items-center justify-center text-xs font-bold text-on-surface font-label-sm cursor-pointer">
@@ -82,12 +82,12 @@ export default async function PublicLayout({
       <footer className="w-full mt-section-gap border-t border-outline-variant/10 bg-surface-container-lowest dark:bg-surface-container-lowest">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter py-section-gap px-gutter max-w-container-max mx-auto flat no shadows">
           <div className="col-span-1 md:col-span-2">
-            <div className="font-headline-lg text-headline-lg font-bold text-on-surface mb-4">DevScale</div>
+            <div className="font-headline-lg text-headline-lg font-bold text-on-surface mb-4">ArchAlgo</div>
             <p className="font-body-md text-body-md text-on-surface-variant mb-6 max-w-md">
               Premium editorial content for software engineers. Master the complexities of modern system design and algorithms.
             </p>
             <div className="text-on-surface-variant text-sm opacity-80 hover:opacity-100 font-label-sm text-label-sm">
-              © 2026 DevScale Technical Editorial. All rights reserved.
+              © 2026 ArchAlgo Technical Editorial. All rights reserved.
             </div>
           </div>
           <div className="col-span-1">

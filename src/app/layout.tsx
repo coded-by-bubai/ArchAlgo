@@ -4,7 +4,7 @@ import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
-  title: "DevScale | Master Software Engineering",
+  title: "ArchAlgo | Master Software Engineering",
   description: "Deep dives into Data Structures, Algorithms, and System Design.",
 };
 

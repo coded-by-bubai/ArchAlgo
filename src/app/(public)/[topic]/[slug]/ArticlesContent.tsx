@@ -67,8 +67,8 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
   // Initialize likes/bookmarks states from localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const isLiked = localStorage.getItem(`devscale_liked_${article.slug}`) === "true"
-      const isBookmarked = localStorage.getItem(`devscale_bookmarked_${article.slug}`) === "true"
+      const isLiked = localStorage.getItem(`archalgo_liked_${article.slug}`) === "true"
+      const isBookmarked = localStorage.getItem(`archalgo_bookmarked_${article.slug}`) === "true"
       Promise.resolve().then(() => {
         setLiked(isLiked)
         setBookmarked(isBookmarked)
@@ -82,14 +82,14 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
     const newLikedState = !liked
     setLiked(newLikedState)
     setLikeCount(prev => newLikedState ? prev + 1 : prev - 1)
-    localStorage.setItem(`devscale_liked_${article.slug}`, String(newLikedState))
+    localStorage.setItem(`archalgo_liked_${article.slug}`, String(newLikedState))
   }
 
   // Handle Bookmark Toggle
   const handleBookmark = () => {
     const newBookmarkedState = !bookmarked
     setBookmarked(newBookmarkedState)
-    localStorage.setItem(`devscale_bookmarked_${article.slug}`, String(newBookmarkedState))
+    localStorage.setItem(`archalgo_bookmarked_${article.slug}`, String(newBookmarkedState))
   }
 
   // Handle Share URL Copy
@@ -156,25 +156,25 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
     },
     a: ({ children, href, ...props }: any) => {
       const isImageUrl = href && (/\.(jpeg|jpg|gif|png|webp|svg|bmp)(?:\?.*)?$/i.test(href) || href.includes("googleusercontent.com"))
-      
+
       if (isImageUrl) {
         return (
           <span className="block my-8 rounded-xl overflow-hidden border border-outline-variant/30 bg-surface-container-low shadow-lg max-w-full">
-            <img 
-              src={href} 
-              alt={typeof children === 'string' ? children : "Article Image"} 
+            <img
+              src={href}
+              alt={typeof children === 'string' ? children : "Article Image"}
               className="w-full object-cover max-h-[450px] opacity-90 hover:opacity-100 transition-opacity duration-300"
               {...props}
             />
           </span>
         )
       }
-      
+
       return (
-        <a 
-          href={href} 
-          target="_blank" 
-          rel="noopener noreferrer" 
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-primary-fixed hover:underline underline-offset-4 decoration-primary-fixed/30 hover:decoration-primary-fixed transition-all font-medium cursor-pointer"
           {...props}
         >
@@ -184,9 +184,9 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
     },
     img: ({ src, alt, ...props }: any) => (
       <span className="block my-8 rounded-xl overflow-hidden border border-outline-variant/30 bg-surface-container-low shadow-lg max-w-full">
-        <img 
-          src={src} 
-          alt={alt} 
+        <img
+          src={src}
+          alt={alt}
           className="w-full object-cover max-h-[450px] opacity-90 hover:opacity-100 transition-opacity duration-300"
           {...props}
         />
@@ -233,8 +233,8 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
       {/* Floating Action Bar (Left Sidebar on Desktop) */}
       <aside className="hidden lg:block lg:col-span-1 relative">
         <div className="sticky top-32 flex flex-col items-center gap-4 py-4 glass-panel rounded-full w-12 mx-auto border border-outline-variant/30">
-          <button 
-            aria-label="Like" 
+          <button
+            aria-label="Like"
             onClick={handleLike}
             className={`transition-colors group relative p-2 ${liked ? "text-primary-fixed" : "text-on-surface-variant hover:text-primary-fixed"}`}
           >
@@ -246,8 +246,8 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
             </span>
           </button>
           <div className="w-6 h-px bg-outline-variant/30"></div>
-          <button 
-            aria-label="Bookmark" 
+          <button
+            aria-label="Bookmark"
             onClick={handleBookmark}
             className={`transition-colors group relative p-2 ${bookmarked ? "text-primary-fixed" : "text-on-surface-variant hover:text-primary-fixed"}`}
           >
@@ -256,8 +256,8 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
             </span>
           </button>
           <div className="w-6 h-px bg-outline-variant/30"></div>
-          <button 
-            aria-label="Share" 
+          <button
+            aria-label="Share"
             onClick={handleShare}
             className="text-on-surface-variant hover:text-primary-fixed transition-colors group relative p-2"
           >
@@ -289,12 +289,12 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
 
           <div className="flex items-center gap-4 py-6 border-y border-outline-variant/20">
             {article.author.image && (
-              <Image 
-                src={article.author.image} 
-                alt={article.author.name || "Author"} 
-                width={48} 
-                height={48} 
-                className="rounded-full object-cover border border-outline-variant/50" 
+              <Image
+                src={article.author.image}
+                alt={article.author.name || "Author"}
+                width={48}
+                height={48}
+                className="rounded-full object-cover border border-outline-variant/50"
               />
             )}
             <div>
@@ -345,20 +345,20 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
           {sessionUser ? (
             <form onSubmit={handleCommentSubmit} className="flex gap-4 mb-10">
               {sessionUser.image && (
-                <Image 
-                  src={sessionUser.image} 
-                  alt={sessionUser.name || "User"} 
-                  width={40} 
-                  height={40} 
+                <Image
+                  src={sessionUser.image}
+                  alt={sessionUser.name || "User"}
+                  width={40}
+                  height={40}
                   className="rounded-full border border-outline-variant/50 object-cover w-10 h-10 flex-shrink-0"
                 />
               )}
               <div className="flex-1">
                 <div className="glass-panel rounded-lg border border-outline-variant/50 focus-within:border-primary-fixed focus-within:ring-1 focus-within:ring-primary-fixed transition-all overflow-hidden bg-surface-container-low">
-                  <textarea 
+                  <textarea
                     ref={textareaRef}
-                    className="w-full bg-transparent border-none text-on-surface placeholder-outline/50 p-4 font-body-md text-body-md focus:ring-0 resize-none min-h-[100px] outline-none" 
-                    placeholder="Add to the discussion... (Markdown supported)" 
+                    className="w-full bg-transparent border-none text-on-surface placeholder-outline/50 p-4 font-body-md text-body-md focus:ring-0 resize-none min-h-[100px] outline-none"
+                    placeholder="Add to the discussion... (Markdown supported)"
                     rows={3}
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
@@ -376,8 +376,8 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                         <span className="material-symbols-outlined text-[18px]">link</span>
                       </button>
                     </div>
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       disabled={isPending || !commentText.trim()}
                       className="bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold px-4 py-1.5 rounded hover:bg-primary-container disabled:opacity-50 transition-colors cursor-pointer"
                     >
@@ -409,11 +409,11 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                 return (
                   <div key={comment.id} className="flex gap-4">
                     {comment.author.image && (
-                      <Image 
-                        src={comment.author.image} 
-                        alt={comment.author.name || "User"} 
-                        width={40} 
-                        height={40} 
+                      <Image
+                        src={comment.author.image}
+                        alt={comment.author.name || "User"}
+                        width={40}
+                        height={40}
                         className="rounded-full border border-outline-variant/40 object-cover w-10 h-10 flex-shrink-0"
                       />
                     )}
@@ -458,7 +458,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
               <ul className="space-y-3 text-xs text-on-surface-variant font-body-md">
                 {headings.map((heading, i) => (
                   <li key={i} style={{ paddingLeft: heading.level === 3 ? "12px" : "0" }}>
-                    <a 
+                    <a
                       href={`#${heading.id}`}
                       className="hover:text-primary-fixed transition-colors border-l border-transparent hover:border-primary-fixed pl-2 block text-ellipsis overflow-hidden whitespace-nowrap"
                     >
