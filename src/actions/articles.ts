@@ -277,9 +277,24 @@ export async function deleteUser(targetUserId: string) {
   }
 
   try {
+    // 1. Delete all comments made by the user to avoid foreign key violation
+    await db.comment.deleteMany({
+      where: { authorId: targetUserId },
+    })
+
+    // 2. Reassign all articles written by the user to the deleting administrator to preserve content
+    if (session.user?.id) {
+      await db.article.updateMany({
+        where: { authorId: targetUserId },
+        data: { authorId: session.user.id },
+      })
+    }
+
+    // 3. Now delete the user safely
     await db.user.delete({
       where: { id: targetUserId },
     })
+    
     revalidatePath("/", "layout")
     return { success: true }
   } catch (error) {
@@ -386,6 +401,33 @@ export async function getBookmarkedArticles(slugs: string[]) {
   } catch (error) {
     console.error("Error fetching bookmarked articles:", error)
     return []
+  }
+}
+
+export async function toggleArticleLike(articleId: string, increment: boolean) {
+  try {
+    // 1. Fetch current article first to guarantee we have the absolute current likes count and handle NULL state safely
+    const currentArticle = await db.article.findUnique({
+      where: { id: articleId },
+      select: { likes: true }
+    })
+
+    // If likes is null or undefined (e.g. for pre-existing legacy rows), fall back to 0
+    const currentLikes = currentArticle?.likes ?? 0
+    const newLikes = Math.max(0, currentLikes + (increment ? 1 : -1))
+
+    // 2. Perform a direct assignment update instead of an atomic increment/decrement
+    // This is 100% safe against NULL values in Neon database for existing rows
+    const article = await db.article.update({
+      where: { id: articleId },
+      data: { likes: newLikes },
+    })
+
+    revalidatePath("/", "layout")
+    return { success: true, likes: article.likes }
+  } catch (error) {
+    console.error("Error toggling article like:", error)
+    throw new Error("Failed to update love count.")
   }
 }
 

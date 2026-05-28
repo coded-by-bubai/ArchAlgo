@@ -7,6 +7,7 @@ import Markdown from "react-markdown"
 import rehypeHighlight from "rehype-highlight"
 import 'highlight.js/styles/github-dark.css'
 import { postComment, updateComment, deleteComment } from "@/actions/comments"
+import { toggleArticleLike } from "@/actions/articles"
 import { useRouter } from "next/navigation"
 import { getReadingTime } from "@/lib/utils"
 
@@ -30,6 +31,7 @@ interface ArticleWithRelations {
   excerpt: string | null
   coverImage: string | null
   views: number
+  likes: number
   createdAt: Date
   authorId: string
   author: {
@@ -70,8 +72,10 @@ function CopyablePre({ children, ...props }: any) {
 
   const rawText = getCodeText(children)
   const isSystemDesign = rawText.trim().toLowerCase().startsWith('title:') && rawText.toLowerCase().includes('[step')
+  const normalizedText = rawText.trim().toLowerCase()
+  const isQuiz = (normalizedText.startsWith('question:') || normalizedText.startsWith('[question')) && normalizedText.includes('answer:')
   
-  if (isSystemDesign) {
+  if (isSystemDesign || isQuiz) {
     return <>{children}</>
   }
 
@@ -176,16 +180,45 @@ function SystemDesignSlideshow({ code }: { code: string }) {
   const active = steps[activeStep]
   const progressPercent = Math.min(100, Math.round(((activeStep + 1) / steps.length) * 100))
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      if (activeStep < steps.length - 1) {
+        setActiveStep(prev => prev + 1)
+      }
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      if (activeStep > 0) {
+        setActiveStep(prev => prev - 1)
+      }
+    } else if (e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault()
+      if (activeStep === steps.length - 1) {
+        setActiveStep(0)
+      } else {
+        setActiveStep(prev => prev + 1)
+      }
+    } else if (e.key.toLowerCase() === 'r') {
+      e.preventDefault()
+      setActiveStep(0)
+    }
+  }
+
   return (
-    <div className="glass-panel border border-outline-variant/30 rounded-2xl overflow-hidden card-gradient shadow-xl my-8 select-none mx-4 sm:mx-0">
+    <div 
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      className="glass-panel border border-outline-variant/30 rounded-2xl overflow-hidden card-gradient shadow-xl my-8 select-none mx-4 sm:mx-0 focus:outline-none focus:ring-1 focus:ring-primary-fixed/40 transition-all duration-300"
+    >
       {/* Header bar */}
       <div className="bg-surface-container-low border-b border-outline-variant/20 px-4 sm:px-6 py-3.5 flex justify-between items-center gap-4">
         <div className="flex items-center gap-2 min-w-0">
           <span className="material-symbols-outlined text-primary-fixed text-lg flex-shrink-0 animate-pulse">schema</span>
           <span className="font-bold text-xs sm:text-sm font-label-sm text-on-surface truncate">{title}</span>
         </div>
-        <div className="font-label-sm text-[10px] sm:text-xs font-bold text-primary-fixed bg-primary-fixed/10 border border-primary-fixed/20 px-2.5 py-0.5 rounded flex-shrink-0">
-          Step {activeStep + 1} of {steps.length}
+        <div className="flex items-center gap-3 font-label-sm text-[10px] sm:text-xs font-bold text-primary-fixed bg-primary-fixed/10 border border-primary-fixed/20 px-2.5 py-0.5 rounded flex-shrink-0">
+          <span className="hidden md:inline-block opacity-60 font-medium mr-1.5">[◄/► arrow keys to navigate]</span>
+          <span>Step {activeStep + 1} of {steps.length}</span>
         </div>
       </div>
 
@@ -198,7 +231,7 @@ function SystemDesignSlideshow({ code }: { code: string }) {
       </div>
 
       {/* Diagram Canvas Area with high-tech radial glow */}
-      <div className="relative p-6 sm:p-10 min-h-[160px] sm:min-h-[220px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-surface-container-high/60 via-surface-container-lowest/20 to-transparent flex flex-col justify-center items-center text-center overflow-hidden border-b border-outline-variant/10">
+      <div className="relative p-4 sm:p-10 min-h-[160px] sm:min-h-[220px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-surface-container-high/60 via-surface-container-lowest/20 to-transparent flex flex-col justify-center items-center text-center overflow-hidden border-b border-outline-variant/10">
         <div className="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
         
         {/* Animated glowing backdrop overlay */}
@@ -211,11 +244,11 @@ function SystemDesignSlideshow({ code }: { code: string }) {
                                 /\.(jpeg|jpg|gif|png|webp|svg|bmp)(?:\?.*)?$/i.test(active.diagram.trim())
           if (isImageDiagram) {
             return (
-              <div className="relative z-10 w-full max-w-[450px] aspect-video sm:aspect-auto sm:max-h-[250px] rounded-xl overflow-hidden border border-outline-variant/20 bg-surface-container-low/50 backdrop-blur-md shadow-lg animate-fade-in flex items-center justify-center p-2">
+              <div className="relative z-10 w-full max-w-[450px] aspect-video sm:aspect-auto sm:max-h-[250px] rounded-xl overflow-hidden border border-outline-variant/20 bg-surface-container-low/50 backdrop-blur-md shadow-lg animate-fade-in flex items-center justify-center p-2 sm:p-4">
                 <img 
                   src={active.diagram.trim()} 
                   alt={active.title} 
-                  className="max-w-full max-h-[180px] sm:max-h-[220px] object-contain rounded-lg transition-transform duration-500 hover:scale-[1.02]"
+                  className="w-full h-auto max-h-[180px] sm:max-h-[220px] object-contain rounded-lg transition-transform duration-500 hover:scale-[1.02]"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const fallbackNode = e.currentTarget.parentElement?.querySelector('.fallback-text');
@@ -230,7 +263,7 @@ function SystemDesignSlideshow({ code }: { code: string }) {
           }
 
           return (
-            <div className="relative z-10 font-mono text-sm sm:text-base md:text-lg text-on-surface bg-surface-container border border-outline-variant/20 px-5 py-4 rounded-xl shadow-lg animate-fade-in flex items-center justify-center gap-3 select-all cursor-text max-w-full overflow-x-auto whitespace-nowrap">
+            <div className="relative z-10 font-mono text-xs sm:text-sm md:text-base text-on-surface bg-surface-container border border-outline-variant/20 px-4 py-3 sm:px-5 sm:py-4 rounded-xl shadow-lg animate-fade-in flex flex-wrap items-center justify-center gap-y-2 gap-x-1.5 sm:gap-3 select-all cursor-text max-w-full">
               {active.diagram.split(' ').map((token, index) => {
                 const isArrow = token.includes('➡️') || token.includes('⬅️') || token.includes('⬇️') || token.includes('⬆️') || token.includes('🤝')
                 const isLabel = token.startsWith('[') && token.endsWith(']')
@@ -239,10 +272,10 @@ function SystemDesignSlideshow({ code }: { code: string }) {
                     key={index}
                     className={
                       isArrow 
-                        ? "text-primary-fixed text-lg font-bold animate-pulse mx-1"
+                        ? "text-primary-fixed text-sm sm:text-lg font-bold animate-pulse mx-0.5 sm:mx-1 flex-shrink-0"
                         : isLabel
-                          ? "text-surface-tint font-bold px-2 py-0.5 rounded bg-primary-fixed/15 border border-primary-fixed/25 text-xs sm:text-sm"
-                          : "text-on-surface font-semibold"
+                          ? "text-surface-tint font-bold px-1.5 py-0.5 sm:px-2 rounded bg-primary-fixed/15 border border-primary-fixed/25 text-[10px] sm:text-xs"
+                          : "text-on-surface font-semibold text-xs sm:text-sm"
                     }
                   >
                     {token}
@@ -318,14 +351,297 @@ function SystemDesignSlideshow({ code }: { code: string }) {
   )
 }
 
+interface QuizOption {
+  key: string
+  text: string
+}
+
+interface QuizQuestion {
+  question: string
+  options: QuizOption[]
+  answer: string
+  explanation: string
+}
+
+function SystemDesignQuiz({ code }: { code: string }) {
+  const [activeQuestion, setActiveQuestion] = useState(0)
+  const [answersState, setAnswersState] = useState<{
+    [index: number]: {
+      selectedOption: string | null
+      isSubmitted: boolean
+    }
+  }>({})
+
+  const parseQuiz = (rawCode: string) => {
+    const lines = rawCode.split('\n')
+    const questionsList: QuizQuestion[] = []
+    
+    let currentQuestion = ""
+    let currentOptions: QuizOption[] = []
+    let currentAnswer = ""
+    let currentExplanation = ""
+
+    const pushCurrent = () => {
+      if (currentQuestion && currentOptions.length > 0) {
+        questionsList.push({
+          question: currentQuestion,
+          options: [...currentOptions],
+          answer: currentAnswer,
+          explanation: currentExplanation
+        })
+      }
+      currentQuestion = ""
+      currentOptions = []
+      currentAnswer = ""
+      currentExplanation = ""
+    }
+
+    for (let line of lines) {
+      line = line.trim()
+      if (!line) continue
+
+      const lowerLine = line.toLowerCase()
+      
+      // Question boundary
+      if (lowerLine.startsWith('[question') && lowerLine.endsWith(']')) {
+        pushCurrent()
+        continue
+      }
+
+      if (lowerLine.startsWith('question:')) {
+        currentQuestion = line.substring(9).trim()
+      } else if (lowerLine.startsWith('answer:')) {
+        currentAnswer = line.substring(7).trim().toUpperCase()
+      } else if (lowerLine.startsWith('explanation:')) {
+        currentExplanation = line.substring(12).trim()
+      } else {
+        const optionMatch = line.match(/^\[?([A-D])\]?[\s)..-]+(.*)$/i)
+        if (optionMatch) {
+          currentOptions.push({
+            key: optionMatch[1].toUpperCase(),
+            text: optionMatch[2].trim()
+          })
+        } else if (currentExplanation) {
+          currentExplanation += " " + line
+        }
+      }
+    }
+    pushCurrent()
+    return questionsList
+  }
+
+  const questions = parseQuiz(code)
+
+  if (questions.length === 0) {
+    return (
+      <div className="glass-panel border border-outline-variant/30 rounded-xl p-6 text-center text-on-surface-variant text-sm italic my-6">
+        Invalid Quiz spec format. Please use Question:, A) B) C) D) options, Answer: and Explanation: fields.
+      </div>
+    )
+  }
+
+  const current = questions[activeQuestion]
+  const state = answersState[activeQuestion] || { selectedOption: null, isSubmitted: false }
+  const { selectedOption, isSubmitted } = state
+
+  const handleOptionSelect = (key: string) => {
+    if (isSubmitted) return
+    setAnswersState(prev => ({
+      ...prev,
+      [activeQuestion]: {
+        selectedOption: key,
+        isSubmitted: false
+      }
+    }))
+  }
+
+  const handleSubmit = () => {
+    if (!selectedOption) return
+    setAnswersState(prev => ({
+      ...prev,
+      [activeQuestion]: {
+        selectedOption: prev[activeQuestion]?.selectedOption || null,
+        isSubmitted: true
+      }
+    }))
+  }
+
+  const handleReset = () => {
+    setAnswersState(prev => ({
+      ...prev,
+      [activeQuestion]: {
+        selectedOption: null,
+        isSubmitted: false
+      }
+    }))
+  }
+
+  const progressPercent = Math.min(100, Math.round(((activeQuestion + 1) / questions.length) * 100))
+
+  return (
+    <div className="glass-panel border border-outline-variant/30 rounded-2xl overflow-hidden card-gradient shadow-xl my-8 select-none mx-4 sm:mx-0">
+      {/* Header bar */}
+      <div className="bg-surface-container-low border-b border-outline-variant/20 px-4 sm:px-6 py-3.5 flex justify-between items-center gap-4">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="material-symbols-outlined text-primary-fixed text-lg flex-shrink-0 animate-pulse">psychology</span>
+          <span className="font-extrabold text-[10px] sm:text-xs uppercase tracking-widest text-primary-fixed font-label-sm truncate">Architecture Knowledge Check</span>
+        </div>
+        {questions.length > 1 && (
+          <div className="font-label-sm text-[10px] sm:text-xs font-bold text-primary-fixed bg-primary-fixed/10 border border-primary-fixed/20 px-2.5 py-0.5 rounded flex-shrink-0">
+            Question {activeQuestion + 1} of {questions.length}
+          </div>
+        )}
+      </div>
+
+      {/* Progress horizontal indicator for multi-question quizzes */}
+      {questions.length > 1 && (
+        <div className="w-full h-[3px] bg-outline-variant/10 relative">
+          <div 
+            className="absolute left-0 top-0 h-full bg-gradient-to-r from-primary-fixed to-surface-tint transition-all duration-500 ease-out"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+      )}
+
+      <div className="p-4 sm:p-8 space-y-6">
+        {/* Question */}
+        <h4 className="font-bold text-sm sm:text-lg text-on-surface leading-snug">
+          {questions.length > 1 && <span className="text-primary-fixed font-mono mr-1.5">{activeQuestion + 1}.</span>}
+          {current.question}
+        </h4>
+
+        {/* Options Stack */}
+        <div className="space-y-3">
+          {current.options.map((opt) => {
+            const isSelected = selectedOption === opt.key
+            const isCorrectAnswer = opt.key === current.answer
+            
+            let cardStyle = "border-outline-variant/20 hover:border-primary-fixed/40 hover:bg-primary-fixed/5"
+            let badgeStyle = "bg-surface-container-high text-on-surface"
+
+            if (isSubmitted) {
+              if (isCorrectAnswer) {
+                cardStyle = "border-green-500 bg-green-500/10 text-green-400 font-medium"
+                badgeStyle = "bg-green-500 text-on-primary-fixed font-black"
+              } else if (isSelected) {
+                cardStyle = "border-red-500 bg-red-500/10 text-red-400"
+                badgeStyle = "bg-red-500 text-white font-black"
+              } else {
+                cardStyle = "border-outline-variant/10 opacity-60"
+              }
+            } else if (isSelected) {
+              cardStyle = "border-primary-fixed bg-primary-fixed/10 text-primary-fixed font-medium"
+              badgeStyle = "bg-primary-fixed text-on-primary-fixed font-black"
+            }
+
+            return (
+              <button
+                key={opt.key}
+                onClick={() => handleOptionSelect(opt.key)}
+                disabled={isSubmitted}
+                className={`w-full text-left p-3 sm:p-4 rounded-xl border flex items-center gap-3 sm:gap-4 transition-all duration-300 ${cardStyle} ${!isSubmitted ? 'cursor-pointer hover:scale-[1.01] active:scale-[0.99]' : 'cursor-default'}`}
+              >
+                <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 transition-colors duration-300 ${badgeStyle}`}>
+                  {opt.key}
+                </div>
+                <div className="flex-1 font-body-md text-xs sm:text-sm leading-normal">
+                  {opt.text}
+                </div>
+                {isSubmitted && isCorrectAnswer && (
+                  <span className="material-symbols-outlined text-green-500 text-lg sm:text-xl flex-shrink-0 animate-bounce">check_circle</span>
+                )}
+                {isSubmitted && isSelected && !isCorrectAnswer && (
+                  <span className="material-symbols-outlined text-red-500 text-lg sm:text-xl flex-shrink-0 animate-shake">cancel</span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Action Buttons & Feedback */}
+        <div className="pt-4 border-t border-outline-variant/10 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+          <div>
+            {isSubmitted && (
+              <div className="flex items-center gap-1.5 justify-center sm:justify-start">
+                {selectedOption === current.answer ? (
+                  <span className="text-green-500 text-xs sm:text-sm font-bold font-label-sm text-center sm:text-left">Correct Answer! Excellent job.</span>
+                ) : (
+                  <span className="text-red-500 text-xs sm:text-sm font-bold font-label-sm text-center sm:text-left">Incorrect. Study the explanation below.</span>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2.5 sm:gap-3 w-full sm:w-auto">
+            {/* Multi-question Back Button */}
+            {questions.length > 1 && (
+              <button
+                onClick={() => setActiveQuestion(prev => Math.max(0, prev - 1))}
+                disabled={activeQuestion === 0}
+                className="flex items-center justify-center gap-1 font-label-sm text-xs font-bold text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg px-3 py-2 border border-outline-variant/20 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-on-surface-variant transition-all cursor-pointer order-2 sm:order-none col-span-1 sm:flex-none text-center"
+              >
+                <span className="material-symbols-outlined text-sm">chevron_left</span>
+                <span>Back</span>
+              </button>
+            )}
+
+            {/* Submit / Reset / Next Action */}
+            {!isSubmitted ? (
+              <button
+                onClick={handleSubmit}
+                disabled={!selectedOption}
+                className="flex items-center justify-center gap-1 font-label-sm text-xs font-bold bg-primary-fixed text-on-primary-fixed hover:bg-primary-container disabled:opacity-40 disabled:hover:bg-primary-fixed disabled:hover:text-on-primary-fixed rounded-lg px-4 py-2 transition-all cursor-pointer shadow-md disabled:cursor-not-allowed order-1 sm:order-none col-span-2 sm:flex-none text-center"
+              >
+                <span>Submit</span>
+                <span className="material-symbols-outlined text-sm">send</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleReset}
+                className="flex items-center justify-center gap-1 font-label-sm text-xs font-bold hover:bg-surface-container rounded-lg px-4 py-2 border border-outline-variant/20 transition-all cursor-pointer order-1 sm:order-none col-span-2 sm:flex-none text-center"
+              >
+                <span>Reset</span>
+                <span className="material-symbols-outlined text-sm">refresh</span>
+              </button>
+            )}
+
+            {/* Multi-question Next Button */}
+            {questions.length > 1 && (
+              <button
+                onClick={() => setActiveQuestion(prev => Math.min(questions.length - 1, prev + 1))}
+                disabled={activeQuestion === questions.length - 1}
+                className="flex items-center justify-center gap-1 font-label-sm text-xs font-bold text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg px-3 py-2 border border-outline-variant/20 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-on-surface-variant transition-all cursor-pointer order-3 sm:order-none col-span-1 sm:flex-none text-center"
+              >
+                <span>Next</span>
+                <span className="material-symbols-outlined text-sm">chevron_right</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Explanation Disclosure Panel */}
+        {isSubmitted && current.explanation && (
+          <div className="p-5 sm:p-6 rounded-xl bg-surface-container-low/50 border border-outline-variant/20 animate-fade-in space-y-2">
+            <h5 className="font-bold text-xs uppercase tracking-wider text-surface-tint font-label-sm">Architectural Explanation</h5>
+            <p className="font-body-md text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+              {current.explanation}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function ArticlesContent({ article, sessionUser, relatedArticles = [] }: ArticlesContentProps) {
   const router = useRouter()
   const [liked, setLiked] = useState(false)
   const [bookmarked, setBookmarked] = useState(false)
   const [showShareToast, setShowShareToast] = useState(false)
-  const [likeCount, setLikeCount] = useState(12) // Initial count simulation
+  const [likeCount, setLikeCount] = useState(article.likes || 0)
   const [commentText, setCommentText] = useState("")
   const [isPending, startTransition] = useTransition()
+  const [isLikePending, startLikeTransition] = useTransition()
   const [errorMessage, setErrorMessage] = useState("")
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -352,7 +668,6 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
       Promise.resolve().then(() => {
         setLiked(isLiked)
         setBookmarked(isBookmarked)
-        if (isLiked) setLikeCount(prev => prev + 1)
       })
     }
   }, [article.slug])
@@ -373,6 +688,27 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
     setLiked(newLikedState)
     setLikeCount(prev => newLikedState ? prev + 1 : prev - 1)
     localStorage.setItem(`archalgo_liked_${article.slug}`, String(newLikedState))
+
+    startLikeTransition(async () => {
+      try {
+        const res = await toggleArticleLike(article.id, newLikedState)
+        if (res && res.success) {
+          // Sync with the absolute truth count from database
+          setLikeCount(res.likes)
+        } else {
+          // Revert if action was not successful
+          setLiked(!newLikedState)
+          setLikeCount(prev => newLikedState ? prev - 1 : prev + 1)
+          localStorage.setItem(`archalgo_liked_${article.slug}`, String(!newLikedState))
+        }
+      } catch (error) {
+        console.error("Failed to sync like with database:", error)
+        // Revert optimistic update on exception
+        setLiked(!newLikedState)
+        setLikeCount(prev => newLikedState ? prev - 1 : prev + 1)
+        localStorage.setItem(`archalgo_liked_${article.slug}`, String(!newLikedState))
+      }
+    })
   }
 
   // Handle Bookmark Toggle
@@ -508,6 +844,12 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
       if (isSystemDesign) {
         const codeContent = rawText.replace(/\n$/, '')
         return <SystemDesignSlideshow code={codeContent} />
+      }
+      const normalizedText = rawText.trim().toLowerCase()
+      const isQuiz = (normalizedText.startsWith('question:') || normalizedText.startsWith('[question')) && normalizedText.includes('answer:')
+      if (isQuiz) {
+        const codeContent = rawText.replace(/\n$/, '')
+        return <SystemDesignQuiz code={codeContent} />
       }
       return (
         <code className={className} {...props}>
@@ -698,20 +1040,34 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
             {article.title}
           </h1>
 
-          <div className="flex items-center gap-4 py-6 border-y border-outline-variant/20">
-            {article.author.image && (
-              <Image
-                src={article.author.image}
-                alt={article.author.name || "Author"}
-                width={48}
-                height={48}
-                className="rounded-full object-cover border border-outline-variant/50"
-              />
-            )}
-            <div>
-              <div className="font-medium text-on-surface font-body-md">{article.author.name || "Anonymous"}</div>
-              <div className="text-on-surface-variant text-sm font-body-md" suppressHydrationWarning>
-                Published {new Date(article.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} • {article.views} views
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-6 border-y border-outline-variant/20">
+            <div className="flex items-center gap-4">
+              {article.author.image && (
+                <Image
+                  src={article.author.image}
+                  alt={article.author.name || "Author"}
+                  width={48}
+                  height={48}
+                  className="rounded-full object-cover border border-outline-variant/50"
+                />
+              )}
+              <div>
+                <div className="font-medium text-on-surface font-body-md">{article.author.name || "Anonymous"}</div>
+                <div className="text-on-surface-variant text-xs sm:text-sm font-body-md" suppressHydrationWarning>
+                  Published {new Date(article.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                </div>
+              </div>
+            </div>
+
+            {/* Premium Stats - Clean Text/Icon Labels */}
+            <div className="flex items-center gap-4 text-on-surface-variant">
+              <div className="flex items-center gap-1.5 font-label-sm text-xs font-bold">
+                <span className="material-symbols-outlined text-[16px] text-on-surface-variant/80">visibility</span>
+                <span>{article.views} views</span>
+              </div>
+              <div className="flex items-center gap-1.5 font-label-sm text-xs font-bold">
+                <span className="material-symbols-outlined text-[16px] text-primary-fixed" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                <span>{likeCount} loves</span>
               </div>
             </div>
           </div>
@@ -734,14 +1090,14 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
             ))}
           </div>
           <div className="flex items-center gap-4 text-on-surface-variant">
-            {/* Love button with inline sliding count */}
+            {/* Love button with persistent glowing count */}
             <button 
               onClick={handleLike} 
-              className={`p-1.5 rounded-lg transition-all duration-300 flex items-center gap-1.5 cursor-pointer group ${liked ? "text-primary-fixed bg-primary-fixed/5" : "hover:text-primary-fixed hover:bg-surface-container-low"}`}
+              className={`p-2 rounded-xl transition-all duration-300 flex items-center gap-2 cursor-pointer group border ${liked ? "text-primary-fixed bg-primary-fixed/10 border-primary-fixed/30 shadow-[0_0_12px_rgba(116,245,255,0.15)] scale-105" : "text-on-surface-variant hover:text-primary-fixed hover:bg-primary-fixed/5 border-outline-variant/20"}`}
               title="Like"
             >
-              <span className="material-symbols-outlined transition-transform duration-300 group-hover:scale-110 active:scale-125" style={{ fontVariationSettings: liked ? "'FILL' 1" : undefined }}>favorite</span>
-              <span className="text-xs font-bold font-mono transition-all duration-300 max-w-0 opacity-0 overflow-hidden group-hover:max-w-[40px] group-hover:opacity-100 select-none">
+              <span className="material-symbols-outlined transition-transform duration-300 group-hover:scale-115 active:scale-125" style={{ fontVariationSettings: liked ? "'FILL' 1" : undefined }}>favorite</span>
+              <span className={`text-xs font-bold font-mono transition-colors duration-300 ${liked ? "text-primary-fixed" : "text-on-surface-variant group-hover:text-primary-fixed"}`}>
                 {likeCount}
               </span>
             </button>
