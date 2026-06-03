@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import Markdown from "react-markdown"
 import rehypeHighlight from "rehype-highlight"
+import remarkGfm from "remark-gfm"
 import 'highlight.js/styles/github-dark.css'
 import { postComment, updateComment, deleteComment } from "@/actions/comments"
 import { toggleArticleLike } from "@/actions/articles"
@@ -758,7 +759,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
     const lines = content.split("\n")
     const headings: { text: string; id: string; level: number }[] = []
     lines.forEach(line => {
-      const match = line.match(/^(#{2,3})\s+(.+)$/)
+      const match = line.match(/^(#{1,3})\s+(.+)$/)
       if (match) {
         const level = match[1].length
         const text = match[2].trim()
@@ -773,6 +774,11 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
 
   // Custom Markdown overrides to assign IDs to headers for TOC anchoring
   const markdownComponents = {
+    h1: ({ children, ...props }: any) => {
+      const text = getHeadingText(children)
+      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+      return <h1 id={id} className="font-headline-xl text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-on-surface mt-14 mb-8 px-4 sm:px-0 font-bold leading-tight" {...props}>{children}</h1>
+    },
     h2: ({ children, ...props }: any) => {
       const text = getHeadingText(children)
       const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-")
@@ -799,6 +805,41 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
     ol: ({ children, ...props }: any) => {
       return <ol className="list-decimal pl-6 pr-4 sm:pr-0 mb-6 space-y-2 text-on-surface/95" {...props}>{children}</ol>
     },
+    table: ({ children, ...props }: any) => (
+      <div className="overflow-x-auto my-6 rounded-xl border border-outline-variant/30 shadow-md mx-4 sm:mx-0">
+        <table className="w-full text-left border-collapse bg-surface-container-low/40 text-sm" {...props}>
+          {children}
+        </table>
+      </div>
+    ),
+    thead: ({ children, ...props }: any) => (
+      <thead className="bg-surface-container/60 border-b border-outline-variant/30" {...props}>
+        {children}
+      </thead>
+    ),
+    tbody: ({ children, ...props }: any) => (
+      <tbody className="divide-y divide-outline-variant/15" {...props}>
+        {children}
+      </tbody>
+    ),
+    tr: ({ children, ...props }: any) => (
+      <tr className="hover:bg-surface-container-high/20 transition-colors" {...props}>
+        {children}
+      </tr>
+    ),
+    th: ({ children, ...props }: any) => (
+      <th className="px-4 py-3 font-semibold text-primary-fixed text-xs uppercase tracking-wider" {...props}>
+        {children}
+      </th>
+    ),
+    td: ({ children, ...props }: any) => (
+      <td className="px-4 py-3 text-on-surface-variant font-body-md text-xs sm:text-sm" {...props}>
+        {children}
+      </td>
+    ),
+    hr: ({ ...props }: any) => (
+      <hr className="my-8 border-t border-outline-variant/30 mx-4 sm:mx-0" {...props} />
+    ),
     a: ({ children, href, ...props }: any) => {
       const isImageUrl = href && (/\.(jpeg|jpg|gif|png|webp|svg|bmp)(?:\?.*)?$/i.test(href) || href.includes("googleusercontent.com"))
 
@@ -1075,7 +1116,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
 
         {/* Content Area */}
         <div className="prose prose-invert max-w-none text-body-md font-body-md">
-          <Markdown components={markdownComponents} rehypePlugins={[rehypeHighlight]}>
+          <Markdown components={markdownComponents} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
             {article.content}
           </Markdown>
         </div>
@@ -1171,7 +1212,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                       disabled={isPending}
                     />
                     <div className="bg-surface border-t border-outline-variant/30 px-2 sm:px-4 py-2 flex justify-between items-center">
-                      <div className="flex gap-2 text-on-surface-variant">
+                      <div className="flex gap-1.5 text-on-surface-variant">
                         <button type="button" onClick={() => insertText("**", "**")} className="hover:text-primary-fixed p-1" title="Bold">
                           <span className="material-symbols-outlined text-[18px]">format_bold</span>
                         </button>
@@ -1180,6 +1221,16 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                         </button>
                         <button type="button" onClick={() => insertText("[", "](url)")} className="hover:text-primary-fixed p-1" title="Link">
                           <span className="material-symbols-outlined text-[18px]">link</span>
+                        </button>
+                        <div className="w-px h-4 bg-outline-variant/30 mx-1 align-middle self-center"></div>
+                        <button type="button" onClick={() => insertText("- ")} className="hover:text-primary-fixed p-1" title="Bullet List">
+                          <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+                        </button>
+                        <button type="button" onClick={() => insertText("1. ")} className="hover:text-primary-fixed p-1" title="Numbered List">
+                          <span className="material-symbols-outlined text-[18px]">format_list_numbered</span>
+                        </button>
+                        <button type="button" onClick={() => insertText("> ")} className="hover:text-primary-fixed p-1" title="Blockquote">
+                          <span className="material-symbols-outlined text-[18px]">format_quote</span>
                         </button>
                       </div>
                       <button
@@ -1285,6 +1336,16 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                                   <button type="button" onClick={() => insertEditText("[", "](url)")} className="hover:text-primary-fixed p-1" title="Link">
                                     <span className="material-symbols-outlined text-[16px]">link</span>
                                   </button>
+                                  <div className="w-px h-4 bg-outline-variant/30 mx-1 align-middle self-center"></div>
+                                  <button type="button" onClick={() => insertEditText("- ")} className="hover:text-primary-fixed p-1" title="Bullet List">
+                                    <span className="material-symbols-outlined text-[16px]">format_list_bulleted</span>
+                                  </button>
+                                  <button type="button" onClick={() => insertEditText("1. ")} className="hover:text-primary-fixed p-1" title="Numbered List">
+                                    <span className="material-symbols-outlined text-[16px]">format_list_numbered</span>
+                                  </button>
+                                  <button type="button" onClick={() => insertEditText("> ")} className="hover:text-primary-fixed p-1" title="Blockquote">
+                                    <span className="material-symbols-outlined text-[16px]">format_quote</span>
+                                  </button>
                                 </div>
                                 <div className="flex gap-2">
                                   <button
@@ -1311,7 +1372,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                           </form>
                         ) : (
                           <div className="prose prose-invert prose-sm max-w-none text-on-surface/90 break-words">
-                            <Markdown components={commentMarkdownComponents} rehypePlugins={[rehypeHighlight]}>
+                            <Markdown components={commentMarkdownComponents} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
                               {decodeHtmlEntities(comment.content)}
                             </Markdown>
                           </div>
@@ -1433,6 +1494,16 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                                   <button type="button" onClick={() => insertReplyText("[", "](url)")} className="hover:text-primary-fixed p-1" title="Link">
                                     <span className="material-symbols-outlined text-[16px]">link</span>
                                   </button>
+                                  <div className="w-px h-4 bg-outline-variant/30 mx-1 align-middle self-center"></div>
+                                  <button type="button" onClick={() => insertReplyText("- ")} className="hover:text-primary-fixed p-1" title="Bullet List">
+                                    <span className="material-symbols-outlined text-[16px]">format_list_bulleted</span>
+                                  </button>
+                                  <button type="button" onClick={() => insertReplyText("1. ")} className="hover:text-primary-fixed p-1" title="Numbered List">
+                                    <span className="material-symbols-outlined text-[16px]">format_list_numbered</span>
+                                  </button>
+                                  <button type="button" onClick={() => insertReplyText("> ")} className="hover:text-primary-fixed p-1" title="Blockquote">
+                                    <span className="material-symbols-outlined text-[16px]">format_quote</span>
+                                  </button>
                                 </div>
                                 <div className="flex gap-2">
                                   <button
@@ -1532,6 +1603,16 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                                           <button type="button" onClick={() => insertEditText("[", "](url)")} className="hover:text-primary-fixed p-0.5" title="Link">
                                             <span className="material-symbols-outlined text-[15px]">link</span>
                                           </button>
+                                          <div className="w-px h-3.5 bg-outline-variant/30 mx-0.5 align-middle self-center"></div>
+                                          <button type="button" onClick={() => insertEditText("- ")} className="hover:text-primary-fixed p-0.5" title="Bullet List">
+                                            <span className="material-symbols-outlined text-[15px]">format_list_bulleted</span>
+                                          </button>
+                                          <button type="button" onClick={() => insertEditText("1. ")} className="hover:text-primary-fixed p-0.5" title="Numbered List">
+                                            <span className="material-symbols-outlined text-[15px]">format_list_numbered</span>
+                                          </button>
+                                          <button type="button" onClick={() => insertEditText("> ")} className="hover:text-primary-fixed p-0.5" title="Blockquote">
+                                            <span className="material-symbols-outlined text-[15px]">format_quote</span>
+                                          </button>
                                         </div>
                                         <div className="flex gap-2">
                                           <button
@@ -1559,7 +1640,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                                 ) : (
                                   <>
                                     <div className="prose prose-invert prose-sm max-w-none text-on-surface/90 break-words">
-                                      <Markdown components={commentMarkdownComponents} rehypePlugins={[rehypeHighlight]}>
+                                      <Markdown components={commentMarkdownComponents} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
                                         {decodeHtmlEntities(reply.content)}
                                       </Markdown>
                                     </div>
@@ -1627,7 +1708,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
             {headings.length > 0 ? (
               <ul className="space-y-3 text-xs text-on-surface-variant font-body-md">
                 {headings.map((heading, i) => (
-                  <li key={i} style={{ paddingLeft: heading.level === 3 ? "12px" : "0" }}>
+                  <li key={i} style={{ paddingLeft: heading.level === 3 ? "16px" : heading.level === 2 ? "8px" : "0px" }}>
                     <a
                       href={`#${heading.id}`}
                       className="hover:text-primary-fixed transition-colors border-l border-transparent hover:border-primary-fixed pl-2 block text-ellipsis overflow-hidden whitespace-nowrap"

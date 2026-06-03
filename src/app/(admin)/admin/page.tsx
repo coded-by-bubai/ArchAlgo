@@ -7,6 +7,7 @@ import Link from "next/link"
 import Image from "next/image"
 import Markdown from "react-markdown"
 import rehypeHighlight from "rehype-highlight"
+import remarkGfm from "remark-gfm"
 import { convertGoogleDriveLink } from "@/lib/utils"
 import 'highlight.js/styles/github-dark.css'
 
@@ -27,7 +28,7 @@ function AdminWriteArticleContent() {
 
   const [showManual, setShowManual] = useState(false)
   const [manualTab, setManualTab] = useState<"interactive" | "basic" | "guidelines">("interactive")
-  const [copiedTemplate, setCopiedTemplate] = useState<"slideshow" | "quiz" | "code" | null>(null)
+  const [copiedTemplate, setCopiedTemplate] = useState<"slideshow" | "quiz" | "code" | "table" | null>(null)
 
   const slideshowTemplate = `title: Microservices Event Broker Workflow
 [step 1: Client Publishes Event]
@@ -57,7 +58,12 @@ func main() {
 }
 \`\`\``
 
-  const handleCopyTemplate = (text: string, templateType: "slideshow" | "quiz" | "code") => {
+  const tableTemplate = `| Operation | Complexity |
+|-----------|------------|
+| Insert    | O(1)       |
+| Delete    | O(n)       |`
+
+  const handleCopyTemplate = (text: string, templateType: "slideshow" | "quiz" | "code" | "table") => {
     let copyText = text
     if (templateType === "slideshow" || templateType === "quiz") {
       copyText = `\`\`\`${templateType}\n${text}\n\`\`\``
@@ -764,6 +770,11 @@ func main() {
 
   // Custom Markdown overrides to style components inside editor preview
   const previewComponents = {
+    h1: ({ children, ...props }: any) => (
+      <h1 className="font-headline-xl text-2xl sm:text-3xl md:text-4xl text-on-surface mt-12 mb-6 border-b border-outline-variant/15 pb-3 font-bold" {...props}>
+        {children}
+      </h1>
+    ),
     h2: ({ children, ...props }: any) => (
       <h2 className="font-headline-lg text-headline-lg text-on-surface mt-10 mb-5 border-b border-outline-variant/10 pb-2" {...props}>
         {children}
@@ -783,6 +794,47 @@ func main() {
       <blockquote className="border-l-2 border-primary-fixed pl-5 py-1.5 my-6 bg-surface-container-low/40 rounded-r italic text-on-surface-variant" {...props}>
         {children}
       </blockquote>
+    ),
+    ul: ({ children, ...props }: any) => (
+      <ul className="list-disc pl-6 mb-6 space-y-2 text-on-surface/95" {...props}>{children}</ul>
+    ),
+    ol: ({ children, ...props }: any) => (
+      <ol className="list-decimal pl-6 mb-6 space-y-2 text-on-surface/95" {...props}>{children}</ol>
+    ),
+    table: ({ children, ...props }: any) => (
+      <div className="overflow-x-auto my-6 rounded-xl border border-outline-variant/30 shadow-md">
+        <table className="w-full text-left border-collapse bg-surface-container-low/40 text-sm" {...props}>
+          {children}
+        </table>
+      </div>
+    ),
+    thead: ({ children, ...props }: any) => (
+      <thead className="bg-surface-container/60 border-b border-outline-variant/30" {...props}>
+        {children}
+      </thead>
+    ),
+    tbody: ({ children, ...props }: any) => (
+      <tbody className="divide-y divide-outline-variant/15" {...props}>
+        {children}
+      </tbody>
+    ),
+    tr: ({ children, ...props }: any) => (
+      <tr className="hover:bg-surface-container-high/20 transition-colors" {...props}>
+        {children}
+      </tr>
+    ),
+    th: ({ children, ...props }: any) => (
+      <th className="px-4 py-3 font-semibold text-primary-fixed text-xs uppercase tracking-wider" {...props}>
+        {children}
+      </th>
+    ),
+    td: ({ children, ...props }: any) => (
+      <td className="px-4 py-3 text-on-surface-variant font-body-md text-xs sm:text-sm" {...props}>
+        {children}
+      </td>
+    ),
+    hr: ({ ...props }: any) => (
+      <hr className="my-8 border-t border-outline-variant/30" {...props} />
     ),
     a: ({ children, href, ...props }: any) => {
       const isImageUrl = href && (/\.(jpeg|jpg|gif|png|webp|svg|bmp)(?:\?.*)?$/i.test(href) || href.includes("googleusercontent.com"))
@@ -1023,6 +1075,24 @@ func main() {
               >
                 <span className="material-symbols-outlined text-[20px]">format_italic</span>
               </button>
+              <button
+                type="button"
+                onClick={() => insertMarkdown("## ")}
+                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all"
+                title="Heading 2"
+                disabled={previewMode === "preview"}
+              >
+                <span className="material-symbols-outlined text-[20px]">title</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => insertMarkdown("> ")}
+                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all"
+                title="Blockquote"
+                disabled={previewMode === "preview"}
+              >
+                <span className="material-symbols-outlined text-[20px]">format_quote</span>
+              </button>
               <div className="w-px h-4 bg-outline-variant/30 mx-2"></div>
               <button
                 type="button"
@@ -1050,6 +1120,34 @@ func main() {
                 disabled={previewMode === "preview"}
               >
                 <span className="material-symbols-outlined text-[20px]">image</span>
+              </button>
+              <div className="w-px h-4 bg-outline-variant/30 mx-2"></div>
+              <button
+                type="button"
+                onClick={() => insertMarkdown("- ")}
+                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all"
+                title="Bullet List"
+                disabled={previewMode === "preview"}
+              >
+                <span className="material-symbols-outlined text-[20px]">format_list_bulleted</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => insertMarkdown("1. ")}
+                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all"
+                title="Numbered List"
+                disabled={previewMode === "preview"}
+              >
+                <span className="material-symbols-outlined text-[20px]">format_list_numbered</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => insertMarkdown("\n| Header 1 | Header 2 |\n|----------|----------|\n| Row 1    | Data 1   |\n| Row 2    | Data 2   |\n")}
+                className="p-1.5 rounded text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container transition-all"
+                title="Table Template"
+                disabled={previewMode === "preview"}
+              >
+                <span className="material-symbols-outlined text-[20px]">table_chart</span>
               </button>
               <div className="w-px h-4 bg-outline-variant/30 mx-2"></div>
               <button
@@ -1102,7 +1200,7 @@ func main() {
             ) : (
               <div className="w-full p-6 prose prose-invert max-w-none text-body-md font-body-md overflow-y-auto leading-relaxed max-h-[600px] hide-scrollbar select-text">
                 {content.trim() ? (
-                  <Markdown components={previewComponents} rehypePlugins={[rehypeHighlight]}>
+                  <Markdown components={previewComponents} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
                     {content}
                   </Markdown>
                 ) : (
@@ -1277,6 +1375,25 @@ func main() {
                         <strong className="text-primary-fixed">Google Drive Conversion:</strong> Simply paste any sharing link from Google Drive (e.g. <code className="font-mono bg-surface-container px-1 py-0.5 rounded text-[10px] break-all">https://drive.google.com/file/d/...</code>) into the Cover Image or Markdown images, and the system automatically translates it to direct rendering assets!
                       </li>
                     </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="font-extrabold text-sm text-primary-fixed mb-2 uppercase tracking-wide">Markdown Tables</h3>
+                    <p className="text-on-surface-variant mb-2.5">Use pipes and hyphens to create elegant comparison grids (standard GFM syntax):</p>
+                    <div className="glass-panel border border-outline-variant/30 rounded-xl overflow-hidden bg-surface-container-low/40 p-4 relative group mt-2">
+                      <button
+                        onClick={() => handleCopyTemplate(tableTemplate, "table")}
+                        className="absolute right-3 top-3 z-10 px-2 py-1 rounded bg-surface/80 border border-outline-variant/30 text-[10px] font-bold font-label-sm text-primary-fixed hover:bg-surface transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-xs">
+                          {copiedTemplate === "table" ? "check" : "content_copy"}
+                        </span>
+                        <span>{copiedTemplate === "table" ? "Copied!" : "Copy Table"}</span>
+                      </button>
+                      <pre className="text-[10px] sm:text-xs font-mono text-on-surface-variant overflow-x-auto leading-relaxed whitespace-pre">
+                        {tableTemplate}
+                      </pre>
+                    </div>
                   </div>
                 </div>
               )}

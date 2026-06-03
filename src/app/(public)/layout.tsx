@@ -85,6 +85,12 @@ export default async function PublicLayout({
           </div>
         </div>
 
+        {/* Overlay backdrop to close menu on click outside */}
+        <label
+          htmlFor="mobile-menu-toggle"
+          className="hidden peer-checked:block md:peer-checked:hidden fixed inset-0 top-16 z-30 bg-black/60 backdrop-blur-[1px] transition-opacity duration-300 cursor-default"
+        />
+
         {/* Responsive Mobile Drawer Menu - Toggled seamlessly via CSS peer checkbox */}
         <div className="hidden peer-checked:block md:peer-checked:hidden absolute top-16 left-0 right-0 z-40 bg-surface/95 dark:bg-surface/95 backdrop-blur-xl border-b border-outline-variant/20 p-6 space-y-6 shadow-xl animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto">
           <form action="/search" method="GET" className="relative w-full">
