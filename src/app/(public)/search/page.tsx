@@ -1,6 +1,16 @@
 import { getArticles } from "@/actions/articles"
 import Link from "next/link"
 import Image from "next/image"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Search Results",
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
+
 
 function cleanString(text: string | null) {
   if (!text) return ""

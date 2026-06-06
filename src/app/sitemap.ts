@@ -26,6 +26,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   })
 
+  // Dynamic tags/topics
+  const tags = await db.tag.findMany({
+    select: { slug: true }
+  })
+
+  const topicEntries: MetadataRoute.Sitemap = tags.map((tag) => ({
+    url: `${baseUrl}/topics/${tag.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }))
+
+  // Static pages
+  const staticEntries: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/privacy-policy`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/terms-of-service`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    }
+  ]
+
   return [
     {
       url: baseUrl,
@@ -33,6 +61,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 1,
     },
+    ...topicEntries,
+    ...staticEntries,
     ...articleEntries,
   ]
 }

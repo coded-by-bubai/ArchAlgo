@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@/auth";
 import LogoutButton from "@/components/LogoutButton";
+import MobileMenuAutoClose from "@/components/MobileMenuAutoClose";
 
 export default async function PublicLayout({
   children,
@@ -13,6 +14,7 @@ export default async function PublicLayout({
 
   return (
     <>
+      <MobileMenuAutoClose />
       <nav className="fixed top-0 w-full z-50 glass-nav shadow-sm border-b border-outline-variant/20 transition-all duration-300">
         <input type="checkbox" id="mobile-menu-toggle" className="peer hidden" />
         <div className="flex justify-between items-center h-16 px-gutter max-w-container-max mx-auto">
@@ -20,7 +22,7 @@ export default async function PublicLayout({
             <Link className="font-headline-lg text-headline-lg font-bold tracking-tighter text-primary-fixed dark:text-primary-fixed-dim scale-95 active:scale-90 transition-transform hover:backdrop-brightness-125" href="/">
               ArchAlgo
             </Link>
-            <div className="hidden md:flex items-center gap-6">
+            <div className="hidden lg:flex items-center gap-6">
               <Link className="text-on-surface-variant hover:text-primary-fixed transition-colors font-label-sm text-label-sm" href="/topics/dsa">DSA</Link>
               <Link className="text-on-surface-variant hover:text-primary-fixed transition-colors font-label-sm text-label-sm" href="/topics/system-design">System Design</Link>
               <Link className="text-on-surface-variant hover:text-primary-fixed transition-colors font-label-sm text-label-sm" href="/topics/web3">Web3</Link>
@@ -28,7 +30,7 @@ export default async function PublicLayout({
           </div>
           <div className="flex items-center gap-4">
             {/* Desktop Actions Row */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-4">
               <form action="/search" method="GET" className="relative group">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm group-focus-within:text-surface-tint transition-colors">search</span>
                 <input name="q" className="bg-surface-container-low border border-outline-variant/30 rounded-DEFAULT pl-9 pr-4 py-1.5 font-code-block text-code-block text-on-surface focus:outline-none focus:border-surface-tint focus:ring-1 focus:ring-surface-tint transition-all w-48 focus:w-64" placeholder="Search articles..." type="text" />
@@ -78,7 +80,7 @@ export default async function PublicLayout({
             </div>
 
             {/* Responsive Hamburger Toggle trigger */}
-            <label htmlFor="mobile-menu-toggle" className="md:hidden flex items-center justify-center p-2 text-on-surface-variant hover:text-primary-fixed cursor-pointer rounded-lg transition-colors border border-outline-variant/20 hover:border-primary-fixed">
+            <label htmlFor="mobile-menu-toggle" className="lg:hidden flex items-center justify-center p-2 text-on-surface-variant hover:text-primary-fixed cursor-pointer rounded-lg transition-colors border border-outline-variant/20 hover:border-primary-fixed">
               <span className="material-symbols-outlined menu-icon text-[20px]">menu</span>
               <span className="material-symbols-outlined close-icon text-[20px] hidden">close</span>
             </label>
@@ -88,11 +90,11 @@ export default async function PublicLayout({
         {/* Overlay backdrop to close menu on click outside */}
         <label
           htmlFor="mobile-menu-toggle"
-          className="hidden peer-checked:block md:peer-checked:hidden fixed inset-0 top-16 z-30 bg-black/60 backdrop-blur-[1px] transition-opacity duration-300 cursor-default"
+          className="hidden peer-checked:block lg:peer-checked:hidden fixed inset-0 top-16 z-30 bg-black/60 backdrop-blur-[1px] transition-opacity duration-300 cursor-default"
         />
 
         {/* Responsive Mobile Drawer Menu - Toggled seamlessly via CSS peer checkbox */}
-        <div className="hidden peer-checked:block md:peer-checked:hidden absolute top-16 left-0 right-0 z-40 bg-surface/95 dark:bg-surface/95 backdrop-blur-xl border-b border-outline-variant/20 p-6 space-y-6 shadow-xl animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="hidden peer-checked:block lg:peer-checked:hidden absolute top-16 left-0 right-0 z-40 bg-surface/95 dark:bg-surface/95 backdrop-blur-xl border-b border-outline-variant/20 p-6 space-y-6 shadow-xl animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto">
           <form action="/search" method="GET" className="relative w-full">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
             <input name="q" className="w-full bg-surface-container-low border border-outline-variant/30 rounded-DEFAULT pl-9 pr-4 py-2.5 font-code-block text-on-surface focus:outline-none focus:border-surface-tint transition-all" placeholder="Search articles..." type="text" />
@@ -201,7 +203,7 @@ export default async function PublicLayout({
             <ul className="space-y-3">
               <li><Link className="text-on-surface-variant hover:text-primary-fixed transition-colors font-body-md text-body-md text-sm block" href="/privacy-policy">Privacy</Link></li>
               <li><Link className="text-on-surface-variant hover:text-primary-fixed transition-colors font-body-md text-body-md text-sm block" href="/terms-of-service">Terms</Link></li>
-              <li><a className="text-on-surface-variant hover:text-primary-fixed transition-colors font-body-md text-body-md text-sm block" href="#">RSS Feed</a></li>
+              <li><a className="text-on-surface-variant hover:text-primary-fixed transition-colors font-body-md text-body-md text-sm block" href="/feed.xml">RSS Feed</a></li>
             </ul>
           </div>
         </div>

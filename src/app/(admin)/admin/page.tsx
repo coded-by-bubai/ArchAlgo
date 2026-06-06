@@ -1336,7 +1336,7 @@ func main() {
                   <div>
                     <h3 className="font-extrabold text-sm text-primary-fixed mb-2 uppercase tracking-wide">Code blocks & inline code</h3>
                     <ul className="space-y-2.5 pl-4 list-disc text-on-surface-variant">
-                      <li>For **inline code**, wrap text with single backticks: <code className="font-mono bg-surface-container px-1.5 py-0.5 rounded text-xs">`const user = 'john'`</code>.</li>
+                      <li>For **inline code**, wrap text with single backticks: <code className="font-mono bg-surface-container px-1.5 py-0.5 rounded text-xs">`const user = &apos;john&apos;`</code>.</li>
                       <li>
                         For **multi-line code blocks**, wrap with triple backticks and specify the programming language (e.g. <code className="font-mono bg-surface-container px-1 py-0.5 rounded text-xs">javascript</code>, <code className="font-mono bg-surface-container px-1 py-0.5 rounded text-xs">typescript</code>, <code className="font-mono bg-surface-container px-1 py-0.5 rounded text-xs">python</code>, <code className="font-mono bg-surface-container px-1 py-0.5 rounded text-xs">go</code>, <code className="font-mono bg-surface-container px-1 py-0.5 rounded text-xs">sql</code>, <code className="font-mono bg-surface-container px-1 py-0.5 rounded text-xs">bash</code>):
                         <div className="glass-panel border border-outline-variant/30 rounded-xl overflow-hidden bg-surface-container-low/40 p-4 relative group mt-2">
@@ -1404,7 +1404,7 @@ func main() {
                     <h3 className="font-extrabold text-sm text-primary-fixed mb-2 uppercase tracking-wide">1. Authoring Best Practices</h3>
                     <ul className="space-y-2 pl-4 list-disc text-on-surface-variant leading-relaxed">
                       <li>Keep explanations visual. Combine system design concepts with block flow diagrams.</li>
-                      <li>Ensure quizzes contain deep-dive, constructive explanations detailing the "why" behind the correct choice.</li>
+                      <li>Ensure quizzes contain deep-dive, constructive explanations detailing the &quot;why&quot; behind the correct choice.</li>
                       <li>Structure content using a clear hierarchy (Introduction ➔ Slideshow ➔ Concepts ➔ Quiz ➔ Recap).</li>
                     </ul>
                   </div>

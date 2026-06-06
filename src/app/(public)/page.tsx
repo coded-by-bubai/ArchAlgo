@@ -34,8 +34,24 @@ export default async function Home() {
   const featuredArticle = articles[0]
   const recentArticles = articles.slice(1)
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const brandJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    'url': baseUrl,
+    'potentialAction': {
+      '@type': 'SearchAction',
+      'target': `${baseUrl}/search?q={search_term_string}`,
+      'query-input': 'required name=search_term_string'
+    }
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(brandJsonLd) }}
+      />
       <section className="py-12 md:py-20 flex flex-col items-center text-center">
         <h1 className="font-headline-xl text-3xl sm:text-4xl md:text-5xl lg:text-headline-xl text-on-surface mb-6 max-w-3xl leading-tight sm:leading-none">
           Master Software Engineering
@@ -44,12 +60,18 @@ export default async function Home() {
           Deep dives into Data Structures, Algorithms, and System Design. Elevate your technical craft with premium editorial content built for high-performance developers.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          <button className="bg-primary-container text-on-primary-fixed font-label-sm text-label-sm font-bold px-6 py-3 rounded-DEFAULT hover:bg-surface-tint transition-colors">
+          <Link
+            href={featuredArticle ? `/${featuredArticle.tags[0]?.slug || 'uncategorized'}/${featuredArticle.slug}` : '/articles'}
+            className="bg-primary-container text-on-primary-fixed font-label-sm text-label-sm font-bold px-6 py-3 rounded-DEFAULT hover:bg-surface-tint transition-colors flex items-center justify-center cursor-pointer"
+          >
             Start Reading
-          </button>
-          <button className="glass-panel border border-outline-variant/30 text-on-surface font-label-sm text-label-sm px-6 py-3 rounded-DEFAULT hover:bg-surface-container-highest transition-colors neon-glow">
+          </Link>
+          <a
+            href="#topics"
+            className="glass-panel border border-outline-variant/30 text-on-surface font-label-sm text-label-sm px-6 py-3 rounded-DEFAULT hover:bg-surface-container-highest transition-colors neon-glow flex items-center justify-center cursor-pointer"
+          >
             Explore Topics
-          </button>
+          </a>
         </div>
       </section>
 
@@ -101,6 +123,65 @@ export default async function Home() {
           </Link>
         </section>
       )}
+
+      {/* Explore Topics Grid Section */}
+      <section id="topics" className="mb-section-gap scroll-mt-24">
+        <h3 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-8">
+          Explore Topics
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link href="/topics/dsa" className="glass-panel border border-outline-variant/30 rounded-2xl p-6 card-gradient hover:border-primary-fixed/55 hover:-translate-y-1 transition-all duration-300 group cursor-pointer flex flex-col justify-between min-h-[200px]">
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-primary-fixed/10 flex items-center justify-center text-primary-fixed mb-4 border border-primary-fixed/20 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-[20px]">schema</span>
+              </div>
+              <h4 className="font-headline-lg-mobile text-lg text-on-surface mb-2 group-hover:text-primary-fixed transition-colors">
+                Data Structures & Algorithms
+              </h4>
+              <p className="text-xs text-on-surface-variant leading-relaxed font-body-md">
+                Master array, list, tree, graph algorithms, complex programming heuristics, and optimal runtime analysis.
+              </p>
+            </div>
+            <div className="text-[10px] text-primary-fixed font-bold font-label-sm uppercase tracking-wider flex items-center gap-1 mt-6">
+              Browse DSA <span className="material-symbols-outlined text-xs">arrow_forward</span>
+            </div>
+          </Link>
+
+          <Link href="/topics/system-design" className="glass-panel border border-outline-variant/30 rounded-2xl p-6 card-gradient hover:border-primary-fixed/55 hover:-translate-y-1 transition-all duration-300 group cursor-pointer flex flex-col justify-between min-h-[200px]">
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-primary-fixed/10 flex items-center justify-center text-primary-fixed mb-4 border border-primary-fixed/20 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-[20px]">hub</span>
+              </div>
+              <h4 className="font-headline-lg-mobile text-lg text-on-surface mb-2 group-hover:text-primary-fixed transition-colors">
+                System Design
+              </h4>
+              <p className="text-xs text-on-surface-variant leading-relaxed font-body-md">
+                Understand scalability patterns, microservices architectures, caching, rate limiting, and high availability systems.
+              </p>
+            </div>
+            <div className="text-[10px] text-primary-fixed font-bold font-label-sm uppercase tracking-wider flex items-center gap-1 mt-6">
+              Browse Systems <span className="material-symbols-outlined text-xs">arrow_forward</span>
+            </div>
+          </Link>
+
+          <Link href="/topics/web3" className="glass-panel border border-outline-variant/30 rounded-2xl p-6 card-gradient hover:border-primary-fixed/55 hover:-translate-y-1 transition-all duration-300 group cursor-pointer flex flex-col justify-between min-h-[200px]">
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-primary-fixed/10 flex items-center justify-center text-primary-fixed mb-4 border border-primary-fixed/20 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-[20px]">toll</span>
+              </div>
+              <h4 className="font-headline-lg-mobile text-lg text-on-surface mb-2 group-hover:text-primary-fixed transition-colors">
+                Web3 & Decentralization
+              </h4>
+              <p className="text-xs text-on-surface-variant leading-relaxed font-body-md">
+                Explore blockchain consensus, Ethereum Virtual Machine internals, smart contracts auditing, and peer-to-peer protocols.
+              </p>
+            </div>
+            <div className="text-[10px] text-primary-fixed font-bold font-label-sm uppercase tracking-wider flex items-center gap-1 mt-6">
+              Browse Web3 <span className="material-symbols-outlined text-xs">arrow_forward</span>
+            </div>
+          </Link>
+        </div>
+      </section>
 
       {recentArticles.length > 0 && (
         <section className="mb-section-gap">

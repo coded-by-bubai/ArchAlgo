@@ -60,8 +60,10 @@ export default function LibraryPage() {
           }
         })
       } else {
-        setArticles([])
-        setLoading(false)
+        Promise.resolve().then(() => {
+          setArticles([])
+          setLoading(false)
+        })
       }
     }
   }, [])

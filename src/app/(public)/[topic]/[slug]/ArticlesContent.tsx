@@ -8,7 +8,7 @@ import rehypeHighlight from "rehype-highlight"
 import remarkGfm from "remark-gfm"
 import 'highlight.js/styles/github-dark.css'
 import { postComment, updateComment, deleteComment } from "@/actions/comments"
-import { toggleArticleLike } from "@/actions/articles"
+import { toggleArticleLike, incrementArticleViews } from "@/actions/articles"
 import { useRouter } from "next/navigation"
 import { getReadingTime } from "@/lib/utils"
 
@@ -673,6 +673,11 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
     }
   }, [article.slug])
 
+  // Increment view count on mount
+  useEffect(() => {
+    incrementArticleViews(article.slug)
+  }, [article.slug])
+
   // Dynamic Scrollbar Controller: Enable global scrollbar strictly for article details view, and remove it on unmount
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -844,11 +849,14 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
       const isImageUrl = href && (/\.(jpeg|jpg|gif|png|webp|svg|bmp)(?:\?.*)?$/i.test(href) || href.includes("googleusercontent.com"))
 
       if (isImageUrl) {
+        const fallbackAlt = (typeof children === 'string' && children.trim())
+          ? children
+          : `ArchAlgo Technical Guide - ${article.title}`
         return (
           <span className="block my-8 rounded-xl overflow-hidden border border-outline-variant/30 bg-surface-container-low shadow-lg max-w-full">
             <img
               src={href}
-              alt={typeof children === 'string' ? children : "Article Image"}
+              alt={fallbackAlt}
               className="w-full object-cover max-h-[450px] opacity-90 hover:opacity-100 transition-opacity duration-300"
               {...props}
             />
@@ -872,7 +880,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
       <span className="block my-8 rounded-xl overflow-hidden border border-outline-variant/30 bg-surface-container-low shadow-lg max-w-full">
         <img
           src={src}
-          alt={alt}
+          alt={alt && alt.trim() ? alt : `ArchAlgo Technical Guide - ${article.title}`}
           className="w-full object-cover max-h-[450px] opacity-90 hover:opacity-100 transition-opacity duration-300"
           {...props}
         />

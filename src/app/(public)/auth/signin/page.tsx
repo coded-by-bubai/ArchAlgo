@@ -91,7 +91,7 @@ export default async function SignInPage({ searchParams }: Props) {
 
         <div className="mt-10 text-center border-t border-outline-variant/10 pt-6">
           <p className="text-xs text-on-surface-variant font-body-md">
-            By signing in, you agree to our <a href="#" className="underline hover:text-primary-fixed">Terms of Service</a> and <a href="#" className="underline hover:text-primary-fixed">Privacy Policy</a>.
+            By signing in, you agree to our <Link href="/terms-of-service" className="underline hover:text-primary-fixed">Terms of Service</Link> and <Link href="/privacy-policy" className="underline hover:text-primary-fixed">Privacy Policy</Link>.
           </p>
         </div>
       </div>

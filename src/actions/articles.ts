@@ -53,9 +53,8 @@ export async function getArticles(limit = 10, page = 1, tag?: string, search?: s
 
 export async function getArticleBySlug(slug: string) {
   try {
-    const article = await db.article.update({
+    const article = await db.article.findUnique({
       where: { slug },
-      data: { views: { increment: 1 } },
       include: {
         author: { select: { name: true, image: true } },
         tags: true,
@@ -73,6 +72,20 @@ export async function getArticleBySlug(slug: string) {
     return null
   }
 }
+
+export async function incrementArticleViews(slug: string) {
+  try {
+    await db.article.update({
+      where: { slug },
+      data: { views: { increment: 1 } },
+    })
+    return { success: true }
+  } catch (error) {
+    console.error("Error incrementing article views:", error)
+    return { success: false }
+  }
+}
+
 
 function generateSlug(title: string) {
   return title

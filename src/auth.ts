@@ -37,10 +37,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         if (user) {
-          if (user.password) {
-            const isValid = verifyPassword(passwordStr, user.password)
-            if (!isValid) return null;
-          }
+          // Block credentials sign-in for users registered solely via OAuth
+          if (!user.password) return null;
+
+          const isValid = verifyPassword(passwordStr, user.password)
+          if (!isValid) return null;
+
           return {
             id: user.id,
             name: user.name,
@@ -58,17 +60,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (token.email) {
-        const dbUser = await db.user.findUnique({
-          where: { email: token.email }
-        });
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.name = dbUser.name;
-          token.picture = dbUser.image;
-          token.role = dbUser.role || "USER";
-        }
-      } else if (user) {
+      // 1. Initial sign-in: populate token fields from user object
+      if (user) {
         token.id = user.id;
         token.name = user.name;
         token.picture = user.image;
