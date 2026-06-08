@@ -49,6 +49,8 @@ interface RelatedArticle {
   title: string
   excerpt: string | null
   createdAt: Date
+  views: number
+  likes: number
   tags: { id: string; name: string; slug: string }[]
   author: { name: string | null }
 }
@@ -120,7 +122,7 @@ interface SystemDesignStep {
   diagram: string
 }
 
-function SystemDesignSlideshow({ code }: { code: string }) {
+function SystemDesignSlideshow({ code, onImageClick }: { code: string; onImageClick?: (src: string) => void }) {
   const [activeStep, setActiveStep] = useState(0)
 
   // Parse custom format steps
@@ -249,7 +251,10 @@ function SystemDesignSlideshow({ code }: { code: string }) {
                 <img 
                   src={active.diagram.trim()} 
                   alt={active.title} 
-                  className="w-full h-auto max-h-[180px] sm:max-h-[220px] object-contain rounded-lg transition-transform duration-500 hover:scale-[1.02]"
+                  onClick={() => onImageClick?.(active.diagram.trim())}
+                  className={`w-full h-auto max-h-[180px] sm:max-h-[220px] object-contain rounded-lg transition-transform duration-500 hover:scale-[1.02] ${
+                    onImageClick ? "cursor-zoom-in" : ""
+                  }`}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const fallbackNode = e.currentTarget.parentElement?.querySelector('.fallback-text');
@@ -634,7 +639,44 @@ function SystemDesignQuiz({ code }: { code: string }) {
   )
 }
 
+// Helper functions for parsing article headings for Table of Contents
+const getHeadingText = (node: any): string => {
+  if (!node) return ""
+  if (typeof node === "string") return node
+  if (Array.isArray(node)) return node.map(getHeadingText).join("")
+  if (node.props && node.props.children) return getHeadingText(node.props.children)
+  return ""
+}
+
+const stripMarkdown = (text: string): string => {
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/_([^_]+)_/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/~~([^~]+)~~/g, "$1")
+}
+
+const parseHeadings = (content: string) => {
+  const lines = content.split("\n")
+  const headings: { text: string; id: string; level: number }[] = []
+  lines.forEach(line => {
+    const match = line.match(/^(#{1,3})\s+(.+)$/)
+    if (match) {
+      const level = match[1].length
+      const rawText = match[2].trim()
+      const text = stripMarkdown(rawText)
+      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+      headings.push({ text, id, level })
+    }
+  })
+  return headings
+}
+
 export default function ArticlesContent({ article, sessionUser, relatedArticles = [] }: ArticlesContentProps) {
+  const headings = parseHeadings(article.content)
   const router = useRouter()
   const [liked, setLiked] = useState(false)
   const [bookmarked, setBookmarked] = useState(false)
@@ -660,6 +702,35 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
 
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [isDeletePending, startDeleteTransition] = useTransition()
+  const [activeHeadingId, setActiveHeadingId] = useState<string>("")
+  const [activeLightboxImage, setActiveLightboxImage] = useState<string | null>(null)
+
+  // Table of Contents Active Scroll Tracker (Scroll Spy)
+  useEffect(() => {
+    if (headings.length === 0) return
+
+    const elements = headings.map(h => document.getElementById(h.id)).filter(Boolean) as HTMLElement[]
+    if (elements.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntries = entries.filter((e) => e.isIntersecting)
+        if (visibleEntries.length > 0) {
+          const topVisible = visibleEntries.reduce((prev, curr) => {
+            return curr.boundingClientRect.top < prev.boundingClientRect.top ? curr : prev
+          })
+          setActiveHeadingId(topVisible.target.id)
+        }
+      },
+      {
+        rootMargin: "-96px 0px -50% 0px",
+        threshold: 0.1,
+      }
+    )
+
+    elements.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [headings])
 
   // Initialize likes/bookmarks states from localStorage
   useEffect(() => {
@@ -751,31 +822,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
     }, 2500)
   }
 
-  // Parse Headings for TOC
-  const getHeadingText = (node: any): string => {
-    if (!node) return ""
-    if (typeof node === "string") return node
-    if (Array.isArray(node)) return node.map(getHeadingText).join("")
-    if (node.props && node.props.children) return getHeadingText(node.props.children)
-    return ""
-  }
 
-  const parseHeadings = (content: string) => {
-    const lines = content.split("\n")
-    const headings: { text: string; id: string; level: number }[] = []
-    lines.forEach(line => {
-      const match = line.match(/^(#{1,3})\s+(.+)$/)
-      if (match) {
-        const level = match[1].length
-        const text = match[2].trim()
-        const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-        headings.push({ text, id, level })
-      }
-    })
-    return headings
-  }
-
-  const headings = parseHeadings(article.content)
 
   // Custom Markdown overrides to assign IDs to headers for TOC anchoring
   const markdownComponents = {
@@ -857,7 +904,8 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
             <img
               src={href}
               alt={fallbackAlt}
-              className="w-full object-cover max-h-[450px] opacity-90 hover:opacity-100 transition-opacity duration-300"
+              onClick={() => setActiveLightboxImage(href)}
+              className="w-full object-cover max-h-[450px] opacity-90 hover:opacity-100 transition-opacity duration-300 cursor-zoom-in"
               {...props}
             />
           </span>
@@ -881,7 +929,8 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
         <img
           src={src}
           alt={alt && alt.trim() ? alt : `ArchAlgo Technical Guide - ${article.title}`}
-          className="w-full object-cover max-h-[450px] opacity-90 hover:opacity-100 transition-opacity duration-300"
+          onClick={() => setActiveLightboxImage(src)}
+          className="w-full object-cover max-h-[450px] opacity-90 hover:opacity-100 transition-opacity duration-300 cursor-zoom-in"
           {...props}
         />
       </span>
@@ -892,7 +941,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
       const isSystemDesign = rawText.trim().toLowerCase().startsWith('title:') && rawText.toLowerCase().includes('[step')
       if (isSystemDesign) {
         const codeContent = rawText.replace(/\n$/, '')
-        return <SystemDesignSlideshow code={codeContent} />
+        return <SystemDesignSlideshow code={codeContent} onImageClick={setActiveLightboxImage} />
       }
       const normalizedText = rawText.trim().toLowerCase()
       const isQuiz = (normalizedText.startsWith('question:') || normalizedText.startsWith('[question')) && normalizedText.includes('answer:')
@@ -1179,10 +1228,26 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {relatedArticles.map((rel) => (
-                <Link key={rel.id} href={`/${rel.tags[0]?.slug || "uncategorized"}/${rel.slug}`} className="p-4 bg-surface-container-low hover:bg-surface-container border border-outline-variant/20 rounded-lg group transition-colors block">
-                  <span className="text-xs text-on-surface-variant group-hover:text-primary-fixed transition-colors font-medium line-clamp-2 leading-relaxed">
+                <Link key={rel.id} href={`/${rel.tags[0]?.slug || "uncategorized"}/${rel.slug}`} className="p-4 bg-surface-container-low hover:bg-surface-container border border-outline-variant/20 rounded-lg group transition-all duration-200 block shadow-sm hover:translate-y-[-1px]">
+                  {rel.tags && rel.tags[0] && (
+                    <span className="text-[9px] uppercase tracking-widest text-primary-fixed bg-primary-fixed/10 border border-primary-fixed/20 px-1.5 py-0.5 rounded font-label-sm font-bold inline-block mb-2">
+                      {rel.tags[0].name}
+                    </span>
+                  )}
+                  <span className="text-xs text-on-surface-variant group-hover:text-primary-fixed transition-colors font-semibold line-clamp-2 leading-relaxed block">
                     {rel.title}
                   </span>
+                  <div className="flex items-center gap-2 mt-2 text-[10px] text-on-surface-variant/70 font-semibold font-mono">
+                    <span className="flex items-center gap-0.5">
+                      <span className="material-symbols-outlined text-[11px]">visibility</span>
+                      <span>{rel.views}</span>
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-0.5">
+                      <span className="material-symbols-outlined text-[11px] text-primary-fixed" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                      <span>{rel.likes}</span>
+                    </span>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -1301,10 +1366,14 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                           alt={comment.author.name || "User"}
                           width={40}
                           height={40}
-                          className="rounded-full border border-outline-variant/40 object-cover w-6 h-6 sm:w-10 sm:h-10 flex-shrink-0"
+                          className={`rounded-full border object-cover w-6 h-6 sm:w-10 sm:h-10 flex-shrink-0 ${
+                            isAuthor ? "border-primary-fixed ring-1 ring-primary-fixed/30" : "border-outline-variant/40"
+                          }`}
                         />
                       ) : (
-                        <div className="rounded-full border border-outline-variant/40 w-6 h-6 sm:w-10 sm:h-10 flex-shrink-0 bg-surface-container flex items-center justify-center font-bold text-[10px] sm:text-sm text-on-surface-variant">
+                        <div className={`rounded-full border w-6 h-6 sm:w-10 sm:h-10 flex-shrink-0 bg-surface-container flex items-center justify-center font-bold text-[10px] sm:text-sm text-on-surface-variant ${
+                          isAuthor ? "border-primary-fixed ring-1 ring-primary-fixed/30" : "border-outline-variant/40"
+                        }`}>
                           {comment.author.name?.substring(0, 2).toUpperCase() || "AN"}
                         </div>
                       )}
@@ -1568,10 +1637,14 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                                   alt={reply.author.name || "User"}
                                   width={32}
                                   height={32}
-                                  className="rounded-full border border-outline-variant/40 object-cover w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0"
+                                  className={`rounded-full border object-cover w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0 ${
+                                    isReplyAuthor ? "border-primary-fixed ring-1 ring-primary-fixed/30" : "border-outline-variant/40"
+                                  }`}
                                 />
                               ) : (
-                                <div className="rounded-full border border-outline-variant/40 w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0 bg-surface-container flex items-center justify-center font-bold text-[8px] sm:text-xs text-on-surface-variant">
+                                <div className={`rounded-full border w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0 bg-surface-container flex items-center justify-center font-bold text-[8px] sm:text-xs text-on-surface-variant ${
+                                  isReplyAuthor ? "border-primary-fixed ring-1 ring-primary-fixed/30" : "border-outline-variant/40"
+                                }`}>
                                   {reply.author.name?.substring(0, 2).toUpperCase() || "AN"}
                                 </div>
                               )}
@@ -1719,7 +1792,11 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
                   <li key={i} style={{ paddingLeft: heading.level === 3 ? "16px" : heading.level === 2 ? "8px" : "0px" }}>
                     <a
                       href={`#${heading.id}`}
-                      className="hover:text-primary-fixed transition-colors border-l border-transparent hover:border-primary-fixed pl-2 block text-ellipsis overflow-hidden whitespace-nowrap"
+                      className={`transition-all duration-200 border-l pl-2 block text-ellipsis overflow-hidden whitespace-nowrap hover:whitespace-normal hover:overflow-visible hover:break-words ${
+                        activeHeadingId === heading.id
+                          ? "text-primary-fixed border-primary-fixed font-bold translate-x-1"
+                          : "hover:text-primary-fixed border-transparent hover:border-primary-fixed/40 text-on-surface-variant"
+                      }`}
                     >
                       {heading.text}
                     </a>
@@ -1739,13 +1816,29 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
               <h4 className="font-label-sm text-label-sm text-on-surface mb-4 uppercase tracking-wider">
                 Related Articles
               </h4>
-              <ul className="space-y-4">
+              <ul className="space-y-4.5">
                 {relatedArticles.map((rel) => (
-                  <li key={rel.id} className="group">
-                    <Link href={`/${rel.tags[0]?.slug || "uncategorized"}/${rel.slug}`}>
-                      <span className="text-xs text-on-surface-variant group-hover:text-primary-fixed transition-colors font-medium line-clamp-2 leading-relaxed block">
+                  <li key={rel.id} className="group border-b border-outline-variant/10 last:border-b-0 pb-3.5 last:pb-0">
+                    <Link href={`/${rel.tags[0]?.slug || "uncategorized"}/${rel.slug}`} className="block">
+                      {rel.tags && rel.tags[0] && (
+                        <span className="text-[9px] uppercase tracking-widest text-primary-fixed bg-primary-fixed/10 border border-primary-fixed/20 px-1.5 py-0.5 rounded font-label-sm font-bold inline-block mb-1.5">
+                          {rel.tags[0].name}
+                        </span>
+                      )}
+                      <span className="text-xs text-on-surface-variant group-hover:text-primary-fixed transition-all duration-200 font-semibold line-clamp-2 leading-relaxed block group-hover:translate-x-0.5">
                         {rel.title}
                       </span>
+                      <div className="flex items-center gap-2 mt-2 text-[10px] text-on-surface-variant/70 font-semibold font-mono">
+                        <span className="flex items-center gap-0.5">
+                          <span className="material-symbols-outlined text-[11px]">visibility</span>
+                          <span>{rel.views}</span>
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-0.5">
+                          <span className="material-symbols-outlined text-[11px] text-primary-fixed" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                          <span>{rel.likes}</span>
+                        </span>
+                      </div>
                     </Link>
                   </li>
                 ))}
@@ -1762,6 +1855,32 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
           <div className="flex flex-col">
             <span className="font-bold text-xs font-label-sm">Link Copied!</span>
             <span className="text-[10px] text-on-surface-variant font-body-md">Share it with your colleagues</span>
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Diagram Lightbox/Zoom Overlay */}
+      {activeLightboxImage && (
+        <div 
+          className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md animate-fade-in p-4 cursor-zoom-out select-none"
+          onClick={() => setActiveLightboxImage(null)}
+        >
+          {/* Close button */}
+          <button 
+            onClick={() => setActiveLightboxImage(null)} 
+            className="absolute top-6 right-6 p-2 rounded-full bg-surface-container/60 hover:bg-surface-container text-on-surface hover:text-primary-fixed transition-all cursor-pointer border border-outline-variant/30"
+          >
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
+          
+          {/* Main zoomed image */}
+          <div className="relative max-w-[90vw] max-h-[85vh] flex items-center justify-center">
+            <img 
+              src={activeLightboxImage} 
+              alt="Zoomed diagram" 
+              className="max-w-full max-h-[85vh] rounded-xl border border-outline-variant/30 shadow-2xl object-contain animate-scale-in"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </div>
       )}

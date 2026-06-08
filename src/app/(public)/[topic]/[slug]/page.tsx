@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${article.title} | ArchAlgo`,
+    title: article.title,
     description: article.excerpt || article.content.substring(0, 160),
     alternates: {
       canonical: `/${topic}/${slug}`,
@@ -114,24 +114,29 @@ function extractQuizzes(content: string): QuizFAQ[] {
 
 
 export async function generateStaticParams() {
-  const articles = await db.article.findMany({
-    where: { published: true },
-    select: {
-      slug: true,
-      tags: {
-        take: 1,
-        select: { slug: true }
+  try {
+    const articles = await db.article.findMany({
+      where: { published: true },
+      select: {
+        slug: true,
+        tags: {
+          take: 1,
+          select: { slug: true }
+        }
       }
-    }
-  })
+    })
 
-  return articles.map((article) => {
-    const topic = article.tags[0]?.slug || 'uncategorized'
-    return {
-      topic,
-      slug: article.slug,
-    }
-  })
+    return articles.map((article) => {
+      const topic = article.tags[0]?.slug || 'uncategorized'
+      return {
+        topic,
+        slug: article.slug,
+      }
+    })
+  } catch (error) {
+    console.error("Error in generateStaticParams:", error)
+    return []
+  }
 }
 
 export default async function ArticlePage({ params }: Props) {
@@ -270,7 +275,7 @@ export default async function ArticlePage({ params }: Props) {
         />
       )}
       {article.coverImage && (
-        <div className="relative w-full h-64 sm:h-80 md:h-[400px] lg:h-[480px] mb-12 rounded-none sm:rounded-xl overflow-hidden border-y sm:border border-outline-variant/30 bg-surface-container-low shadow-lg">
+        <div className="relative w-full h-48 sm:h-60 md:h-[280px] lg:h-[340px] mb-12 rounded-none sm:rounded-xl overflow-hidden border-y sm:border border-outline-variant/30 bg-surface-container-low shadow-lg">
           {/* Elegant blurred background drop to fill empty pillarbox/letterbox areas beautifully */}
           <div 
             className="absolute inset-0 bg-cover bg-center filter blur-2xl scale-105 opacity-20 select-none pointer-events-none"

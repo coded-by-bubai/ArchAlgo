@@ -1,42 +1,51 @@
 import { MetadataRoute } from 'next'
 import { db } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-  const articles = await db.article.findMany({
-    where: { published: true },
-    select: { 
-      slug: true, 
-      updatedAt: true,
-      tags: {
-        take: 1,
-        select: { slug: true }
+  let articleEntries: MetadataRoute.Sitemap = []
+  let topicEntries: MetadataRoute.Sitemap = []
+
+  try {
+    const articles = await db.article.findMany({
+      where: { published: true },
+      select: { 
+        slug: true, 
+        updatedAt: true,
+        tags: {
+          take: 1,
+          select: { slug: true }
+        }
       }
-    }
-  })
+    })
 
-  const articleEntries: MetadataRoute.Sitemap = articles.map((article) => {
-    const topic = article.tags[0]?.slug || 'uncategorized'
-    return {
-      url: `${baseUrl}/${topic}/${article.slug}`,
-      lastModified: article.updatedAt,
+    articleEntries = articles.map((article) => {
+      const topic = article.tags[0]?.slug || 'uncategorized'
+      return {
+        url: `${baseUrl}/${topic}/${article.slug}`,
+        lastModified: article.updatedAt,
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      }
+    })
+
+    // Dynamic tags/topics
+    const tags = await db.tag.findMany({
+      select: { slug: true }
+    })
+
+    topicEntries = tags.map((tag) => ({
+      url: `${baseUrl}/topics/${tag.slug}`,
+      lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.8,
-    }
-  })
-
-  // Dynamic tags/topics
-  const tags = await db.tag.findMany({
-    select: { slug: true }
-  })
-
-  const topicEntries: MetadataRoute.Sitemap = tags.map((tag) => ({
-    url: `${baseUrl}/topics/${tag.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.7,
-  }))
+      priority: 0.7,
+    }))
+  } catch (error) {
+    console.error("Error generating dynamic sitemap entries:", error)
+  }
 
   // Static pages
   const staticEntries: MetadataRoute.Sitemap = [

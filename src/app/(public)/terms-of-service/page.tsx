@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | ArchAlgo',
+  title: 'Terms of Service',
   description: 'Understand your rights and responsibilities when reading technical articles, bookmarking content, or contributing comments on ArchAlgo.',
 }
 

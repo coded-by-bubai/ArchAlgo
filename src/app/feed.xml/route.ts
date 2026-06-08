@@ -1,21 +1,28 @@
 import { db } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   
-  const articles = await db.article.findMany({
-    where: { published: true },
-    orderBy: { createdAt: 'desc' },
-    take: 20,
-    include: {
-      tags: {
-        select: { slug: true }
-      },
-      author: {
-        select: { name: true }
+  let articles: any[] = []
+  try {
+    articles = await db.article.findMany({
+      where: { published: true },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+      include: {
+        tags: {
+          select: { slug: true }
+        },
+        author: {
+          select: { name: true }
+        }
       }
-    }
-  })
+    })
+  } catch (error) {
+    console.error("Error generating RSS articles feed:", error)
+  }
 
   const lastBuildDate = new Date().toUTCString()
 

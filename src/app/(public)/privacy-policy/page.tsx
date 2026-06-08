@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | ArchAlgo',
+  title: 'Privacy Policy',
   description: 'Learn how ArchAlgo collects, uses, and safeguards your personal data, code snippets, and account information.',
 }
 
