@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import { getArticleBySlug } from '@/actions/articles'
 import { notFound, redirect } from 'next/navigation'
-import Image from 'next/image'
 import { auth } from '@/auth'
 import ArticlesContent from './ArticlesContent'
 import { db } from '@/lib/db'
@@ -256,7 +255,7 @@ export default async function ArticlePage({ params }: Props) {
   } : null
 
   return (
-    <div className="w-full py-10">
+    <div className="w-full pt-0 pb-10">
       {article.coverImage && (
         <link rel="preload" as="image" href={article.coverImage} fetchPriority="high" />
       )}
@@ -274,24 +273,6 @@ export default async function ArticlePage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       )}
-      {article.coverImage && (
-        <div className="relative w-full h-48 sm:h-60 md:h-[280px] lg:h-[340px] mb-12 rounded-none sm:rounded-xl overflow-hidden border-y sm:border border-outline-variant/30 bg-surface-container-low shadow-lg">
-          {/* Elegant blurred background drop to fill empty pillarbox/letterbox areas beautifully */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center filter blur-2xl scale-105 opacity-20 select-none pointer-events-none"
-            style={{ backgroundImage: `url(${article.coverImage})` }}
-          />
-          {/* Main fully-visible crisp cover image */}
-          <Image
-            src={article.coverImage}
-            alt={article.title}
-            fill
-            className="object-contain opacity-100 z-10"
-            priority
-          />
-        </div>
-      )}
-
       <ArticlesContent article={article} sessionUser={sessionUser} relatedArticles={relatedArticles} />
     </div>
   )

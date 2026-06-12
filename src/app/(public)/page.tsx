@@ -79,15 +79,22 @@ export default async function Home() {
         <section className="mb-section-gap">
           <Link href={`/${featuredArticle.tags[0]?.slug || 'uncategorized'}/${featuredArticle.slug}`}>
             <div className="glass-panel rounded-xl overflow-hidden group cursor-pointer border border-outline-variant/30 hover:border-primary-fixed/50 transition-all duration-300 relative">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 h-full">
-                <div className="h-64 md:h-auto w-full bg-surface-container-high relative overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:h-[400px]">
+                <div className="h-64 md:h-full w-full bg-surface-container-high relative overflow-hidden">
+                  {/* Elegant blurred background drop to fill empty pillarbox/letterbox areas beautifully */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center filter blur-2xl scale-105 opacity-20 select-none pointer-events-none group-hover:opacity-30 transition-opacity duration-500"
+                    style={{ backgroundImage: `url(${featuredArticle.coverImage || "https://lh3.googleusercontent.com/aida-public/AB6AXuDFgrwq4YaE6KtuRexP4D0hM_6zcnvlk1T0QeNCU1UzM05QsAa-bDjK0qhqid2x3692lqfaMy8a6tKI4CmrXTd3-82jH-D-wZwWNB1xZ7QiNyW8yON9JEgIwgsFK2hrGJ05fH03QxHsRRcdbgECAx3-h7mVsyPqz8iEc1SycajZfuKZZyQS3B4JNTy-rmuk8kSZhrrIV4eNiOkL58jg9tfjRWomF6iotFqHBtGklOsIcAYGXHnus-JI-hoUUZfYadKKM5KCvK7nzO9C"})` }}
+                  />
+                  {/* Main fully-visible crisp cover image */}
                   <Image 
                     alt={featuredArticle.title} 
-                    className="object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700" 
+                    className="object-contain opacity-100 z-10 group-hover:scale-102 transition-all duration-700" 
                     src={featuredArticle.coverImage || "https://lh3.googleusercontent.com/aida-public/AB6AXuDFgrwq4YaE6KtuRexP4D0hM_6zcnvlk1T0QeNCU1UzM05QsAa-bDjK0qhqid2x3692lqfaMy8a6tKI4CmrXTd3-82jH-D-wZwWNB1xZ7QiNyW8yON9JEgIwgsFK2hrGJ05fH03QxHsRRcdbgECAx3-h7mVsyPqz8iEc1SycajZfuKZZyQS3B4JNTy-rmuk8kSZhrrIV4eNiOkL58jg9tfjRWomF6iotFqHBtGklOsIcAYGXHnus-JI-hoUUZfYadKKM5KCvK7nzO9C"}
                     fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent md:from-transparent md:to-transparent"></div>
                 </div>
                 <div className="p-6 md:p-12 flex flex-col justify-center card-gradient relative z-10">
                   <div className="flex items-center gap-3 mb-4">

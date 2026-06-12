@@ -93,7 +93,7 @@ function CopyablePre({ children, ...props }: any) {
   }
 
   return (
-    <div className="relative group max-w-full my-6">
+    <div className="relative group max-w-full my-1">
       <button
         type="button"
         onClick={handleCopy}
@@ -211,7 +211,7 @@ function SystemDesignSlideshow({ code, onImageClick }: { code: string; onImageCl
     <div 
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      className="glass-panel border border-outline-variant/30 rounded-2xl overflow-hidden card-gradient shadow-xl my-8 select-none mx-4 sm:mx-0 focus:outline-none focus:ring-1 focus:ring-primary-fixed/40 transition-all duration-300"
+      className="glass-panel border border-outline-variant/30 rounded-2xl overflow-hidden card-gradient shadow-xl my-8 select-none focus:outline-none focus:ring-1 focus:ring-primary-fixed/40 transition-all duration-300"
     >
       {/* Header bar */}
       <div className="bg-surface-container-low border-b border-outline-variant/20 px-4 sm:px-6 py-3.5 flex justify-between items-center gap-4">
@@ -485,7 +485,7 @@ function SystemDesignQuiz({ code }: { code: string }) {
   const progressPercent = Math.min(100, Math.round(((activeQuestion + 1) / questions.length) * 100))
 
   return (
-    <div className="glass-panel border border-outline-variant/30 rounded-2xl overflow-hidden card-gradient shadow-xl my-8 select-none mx-4 sm:mx-0">
+    <div className="glass-panel border border-outline-variant/30 rounded-2xl overflow-hidden card-gradient shadow-xl my-8 select-none">
       {/* Header bar */}
       <div className="bg-surface-container-low border-b border-outline-variant/20 px-4 sm:px-6 py-3.5 flex justify-between items-center gap-4">
         <div className="flex items-center gap-2 min-w-0">
@@ -829,36 +829,36 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
     h1: ({ children, ...props }: any) => {
       const text = getHeadingText(children)
       const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-      return <h1 id={id} className="font-headline-xl text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-on-surface mt-14 mb-8 px-4 sm:px-0 font-bold leading-tight" {...props}>{children}</h1>
+      return <h1 id={id} className="font-headline-xl text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-on-surface mt-14 mb-8 font-bold leading-tight" {...props}>{children}</h1>
     },
     h2: ({ children, ...props }: any) => {
       const text = getHeadingText(children)
       const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-      return <h2 id={id} className="font-headline-lg text-headline-lg text-on-surface mt-12 mb-6 px-4 sm:px-0" {...props}>{children}</h2>
+      return <h2 id={id} className="font-headline-lg text-headline-lg text-on-surface mt-12 mb-6" {...props}>{children}</h2>
     },
     h3: ({ children, ...props }: any) => {
       const text = getHeadingText(children)
       const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-      return <h3 id={id} className="font-headline-lg text-[24px] text-on-surface mt-10 mb-4 px-4 sm:px-0" {...props}>{children}</h3>
+      return <h3 id={id} className="font-headline-lg text-[24px] text-on-surface mt-10 mb-4" {...props}>{children}</h3>
     },
     p: ({ children, ...props }: any) => {
-      return <p className="mb-6 leading-relaxed text-on-surface/90 px-4 sm:px-0" {...props}>{children}</p>
+      return <p className="mb-6 leading-relaxed text-on-surface/90" {...props}>{children}</p>
     },
     blockquote: ({ children, ...props }: any) => {
       return (
-        <blockquote className="border-l-2 border-primary-fixed pl-6 py-2 my-8 glass-panel rounded-r italic text-on-surface-variant mx-4 sm:mx-0" {...props}>
+        <blockquote className="border-l-2 border-primary-fixed pl-6 py-2 my-8 glass-panel rounded-r italic text-on-surface-variant" {...props}>
           {children}
         </blockquote>
       )
     },
     ul: ({ children, ...props }: any) => {
-      return <ul className="list-disc pl-6 pr-4 sm:pr-0 mb-6 space-y-2 text-on-surface/95" {...props}>{children}</ul>
+      return <ul className="list-disc pl-6 mb-6 space-y-2 text-on-surface/95" {...props}>{children}</ul>
     },
     ol: ({ children, ...props }: any) => {
-      return <ol className="list-decimal pl-6 pr-4 sm:pr-0 mb-6 space-y-2 text-on-surface/95" {...props}>{children}</ol>
+      return <ol className="list-decimal pl-6 mb-1 space-y-2 text-on-surface/95" {...props}>{children}</ol>
     },
     table: ({ children, ...props }: any) => (
-      <div className="overflow-x-auto my-6 rounded-xl border border-outline-variant/30 shadow-md mx-4 sm:mx-0">
+      <div className="overflow-x-auto my-6 rounded-xl border border-outline-variant/30 shadow-md">
         <table className="w-full text-left border-collapse bg-surface-container-low/40 text-sm" {...props}>
           {children}
         </table>
@@ -890,7 +890,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
       </td>
     ),
     hr: ({ ...props }: any) => (
-      <hr className="my-8 border-t border-outline-variant/30 mx-4 sm:mx-0" {...props} />
+      <hr className="my-8 border-t border-outline-variant/30" {...props} />
     ),
     a: ({ children, href, ...props }: any) => {
       const isImageUrl = href && (/\.(jpeg|jpg|gif|png|webp|svg|bmp)(?:\?.*)?$/i.test(href) || href.includes("googleusercontent.com"))
@@ -1120,9 +1120,29 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
 
 
       {/* Main Column */}
-      <div className="col-span-1 lg:col-span-10 w-full">
+      <div className="col-span-1 lg:col-span-10 w-full px-4 sm:px-0">
+        {article.coverImage && (
+          <div 
+            onClick={() => setActiveLightboxImage(article.coverImage)}
+            className="relative w-full h-36 sm:h-44 md:h-[180px] lg:h-[220px] mb-8 rounded-none sm:rounded-xl overflow-hidden border-y sm:border border-outline-variant/30 bg-surface-container-low shadow-lg cursor-zoom-in group"
+          >
+            {/* Elegant blurred background drop to fill empty pillarbox/letterbox areas beautifully */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center filter blur-2xl scale-105 opacity-20 select-none pointer-events-none group-hover:opacity-35 transition-opacity duration-300"
+              style={{ backgroundImage: `url(${article.coverImage})` }}
+            />
+            {/* Main fully-visible crisp cover image */}
+            <Image
+              src={article.coverImage}
+              alt={article.title}
+              fill
+              className="object-contain opacity-100 z-10 group-hover:scale-[1.01] transition-transform duration-500"
+              priority
+            />
+          </div>
+        )}
         {/* Header Section */}
-        <header className="mb-12 px-4 sm:px-0">
+        <header className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             {article.tags && article.tags[0] && (
               <Link href={`/topics/${article.tags[0].slug}`} className="font-label-sm text-label-sm uppercase tracking-widest text-primary-fixed bg-primary-fixed/10 border border-primary-fixed/20 px-2.5 py-1 rounded hover:bg-primary-fixed/20 transition-colors">
@@ -1179,7 +1199,7 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
         </div>
 
         {/* Actions row under the article (Universally enabled for both mobile and desktop viewports) */}
-        <div className="mt-12 pt-8 border-t border-outline-variant/20 flex justify-between items-center gap-6 px-4 sm:px-0">
+        <div className="mt-12 pt-8 border-t border-outline-variant/20 flex justify-between items-center gap-6">
           <div className="flex flex-wrap gap-2">
             {article.tags.map(tag => (
               <Link key={tag.id} href={`/topics/${tag.slug}`} className="font-label-sm text-label-sm border border-outline-variant px-3 py-1 rounded-full text-on-surface-variant hover:border-primary-fixed hover:text-primary-fixed transition-colors">
@@ -1256,82 +1276,78 @@ export default function ArticlesContent({ article, sessionUser, relatedArticles 
 
         {/* Discussion Board / Comments Section */}
         <section className="mt-16 pt-12 border-t border-outline-variant/20">
-          <h3 className="font-headline-lg text-headline-lg text-[24px] text-on-surface mb-8 px-4 sm:px-0">
+          <h3 className="font-headline-lg text-headline-lg text-[24px] text-on-surface mb-8">
             Discussion ({article.comments.length})
           </h3>
 
           {/* Comment submission form */}
           {sessionUser ? (
-            <div className="px-4 sm:px-0">
-              <form onSubmit={handleCommentSubmit} className="flex gap-2 sm:gap-4 mb-10">
-                {sessionUser.image && (
-                  <Image
-                    src={sessionUser.image}
-                    alt={sessionUser.name || "User"}
-                    width={40}
-                    height={40}
-                    className="rounded-full border border-outline-variant/50 object-cover w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0"
+            <form onSubmit={handleCommentSubmit} className="flex gap-2 sm:gap-4 mb-10">
+              {sessionUser.image && (
+                <Image
+                  src={sessionUser.image}
+                  alt={sessionUser.name || "User"}
+                  width={40}
+                  height={40}
+                  className="rounded-full border border-outline-variant/50 object-cover w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="glass-panel rounded-lg border border-outline-variant/50 focus-within:border-primary-fixed focus-within:ring-1 focus-within:ring-primary-fixed transition-all overflow-hidden bg-surface-container-low">
+                  <textarea
+                    ref={textareaRef}
+                    className="w-full bg-transparent border-none text-on-surface placeholder-outline/50 p-2 sm:p-4 font-body-md text-body-md focus:ring-0 resize-none min-h-[100px] outline-none"
+                    placeholder="Add to the discussion... (Markdown supported)"
+                    rows={3}
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    disabled={isPending}
                   />
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="glass-panel rounded-lg border border-outline-variant/50 focus-within:border-primary-fixed focus-within:ring-1 focus-within:ring-primary-fixed transition-all overflow-hidden bg-surface-container-low">
-                    <textarea
-                      ref={textareaRef}
-                      className="w-full bg-transparent border-none text-on-surface placeholder-outline/50 p-2 sm:p-4 font-body-md text-body-md focus:ring-0 resize-none min-h-[100px] outline-none"
-                      placeholder="Add to the discussion... (Markdown supported)"
-                      rows={3}
-                      value={commentText}
-                      onChange={(e) => setCommentText(e.target.value)}
-                      disabled={isPending}
-                    />
-                    <div className="bg-surface border-t border-outline-variant/30 px-2 sm:px-4 py-2 flex justify-between items-center">
-                      <div className="flex gap-1.5 text-on-surface-variant">
-                        <button type="button" onClick={() => insertText("**", "**")} className="hover:text-primary-fixed p-1" title="Bold">
-                          <span className="material-symbols-outlined text-[18px]">format_bold</span>
-                        </button>
-                        <button type="button" onClick={() => insertText("```javascript\n", "\n```")} className="hover:text-primary-fixed p-1" title="Code">
-                          <span className="material-symbols-outlined text-[18px]">code</span>
-                        </button>
-                        <button type="button" onClick={() => insertText("[", "](url)")} className="hover:text-primary-fixed p-1" title="Link">
-                          <span className="material-symbols-outlined text-[18px]">link</span>
-                        </button>
-                        <div className="w-px h-4 bg-outline-variant/30 mx-1 align-middle self-center"></div>
-                        <button type="button" onClick={() => insertText("- ")} className="hover:text-primary-fixed p-1" title="Bullet List">
-                          <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
-                        </button>
-                        <button type="button" onClick={() => insertText("1. ")} className="hover:text-primary-fixed p-1" title="Numbered List">
-                          <span className="material-symbols-outlined text-[18px]">format_list_numbered</span>
-                        </button>
-                        <button type="button" onClick={() => insertText("> ")} className="hover:text-primary-fixed p-1" title="Blockquote">
-                          <span className="material-symbols-outlined text-[18px]">format_quote</span>
-                        </button>
-                      </div>
-                      <button
-                        type="submit"
-                        disabled={isPending || !commentText.trim()}
-                        className="bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold px-4 py-1.5 rounded hover:bg-primary-container disabled:opacity-50 transition-colors cursor-pointer flex items-center gap-1.5"
-                      >
-                        {isPending && <span className="material-symbols-outlined text-sm animate-spin">sync</span>}
-                        <span>{isPending ? "Posting..." : "Comment"}</span>
+                  <div className="bg-surface border-t border-outline-variant/30 px-2 sm:px-4 py-2 flex justify-between items-center">
+                    <div className="flex gap-1.5 text-on-surface-variant">
+                      <button type="button" onClick={() => insertText("**", "**")} className="hover:text-primary-fixed p-1" title="Bold">
+                        <span className="material-symbols-outlined text-[18px]">format_bold</span>
+                      </button>
+                      <button type="button" onClick={() => insertText("```javascript\n", "\n```")} className="hover:text-primary-fixed p-1" title="Code">
+                        <span className="material-symbols-outlined text-[18px]">code</span>
+                      </button>
+                      <button type="button" onClick={() => insertText("[", "](url)")} className="hover:text-primary-fixed p-1" title="Link">
+                        <span className="material-symbols-outlined text-[18px]">link</span>
+                      </button>
+                      <div className="w-px h-4 bg-outline-variant/30 mx-1 align-middle self-center"></div>
+                      <button type="button" onClick={() => insertText("- ")} className="hover:text-primary-fixed p-1" title="Bullet List">
+                        <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+                      </button>
+                      <button type="button" onClick={() => insertText("1. ")} className="hover:text-primary-fixed p-1" title="Numbered List">
+                        <span className="material-symbols-outlined text-[18px]">format_list_numbered</span>
+                      </button>
+                      <button type="button" onClick={() => insertText("> ")} className="hover:text-primary-fixed p-1" title="Blockquote">
+                        <span className="material-symbols-outlined text-[18px]">format_quote</span>
                       </button>
                     </div>
+                    <button
+                      type="submit"
+                      disabled={isPending || !commentText.trim()}
+                      className="bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold px-4 py-1.5 rounded hover:bg-primary-container disabled:opacity-50 transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      {isPending && <span className="material-symbols-outlined text-sm animate-spin">sync</span>}
+                      <span>{isPending ? "Posting..." : "Comment"}</span>
+                    </button>
                   </div>
-                  {errorMessage && (
-                    <p className="text-error text-xs mt-2">{errorMessage}</p>
-                  )}
                 </div>
-              </form>
-            </div>
-          ) : (
-            <div className="px-4 sm:px-0">
-              <div className="glass-panel rounded-lg border border-outline-variant/30 p-6 text-center mb-10 flex flex-col items-center gap-3">
-                <p className="text-on-surface-variant font-body-md text-sm">
-                  You must be logged in to participate in the technical discussions.
-                </p>
-                <Link href="/api/auth/signin" className="bg-primary-container text-on-primary-fixed font-label-sm text-xs font-bold px-5 py-2 rounded-DEFAULT hover:bg-surface-tint transition-colors">
-                  Sign In to Comment
-                </Link>
+                {errorMessage && (
+                  <p className="text-error text-xs mt-2">{errorMessage}</p>
+                )}
               </div>
+            </form>
+          ) : (
+            <div className="glass-panel rounded-lg border border-outline-variant/30 p-6 text-center mb-10 flex flex-col items-center gap-3">
+              <p className="text-on-surface-variant font-body-md text-sm">
+                You must be logged in to participate in the technical discussions.
+              </p>
+              <Link href="/api/auth/signin" className="bg-primary-container text-on-primary-fixed font-label-sm text-xs font-bold px-5 py-2 rounded-DEFAULT hover:bg-surface-tint transition-colors">
+                Sign In to Comment
+              </Link>
             </div>
           )}
 

@@ -100,6 +100,13 @@ func main() {
     }
   }, [editSlug])
 
+  // Automatically restore focus to the editor when returning to edit mode
+  useEffect(() => {
+    if (previewMode === "edit") {
+      textareaRef.current?.focus()
+    }
+  }, [previewMode])
+
   // Toggle selected tags
   const handleTagToggle = (tag: string) => {
     if (selectedTags.includes(tag)) {
@@ -225,7 +232,7 @@ func main() {
     }
 
     return (
-      <div className="relative group max-w-full my-6">
+      <div className="relative group max-w-full my-1">
         <button
           type="button"
           onClick={handleCopy}
@@ -799,7 +806,7 @@ func main() {
       <ul className="list-disc pl-6 mb-6 space-y-2 text-on-surface/95" {...props}>{children}</ul>
     ),
     ol: ({ children, ...props }: any) => (
-      <ol className="list-decimal pl-6 mb-6 space-y-2 text-on-surface/95" {...props}>{children}</ol>
+      <ol className="list-decimal pl-6 mb-1 space-y-2 text-on-surface/95" {...props}>{children}</ol>
     ),
     table: ({ children, ...props }: any) => (
       <div className="overflow-x-auto my-6 rounded-xl border border-outline-variant/30 shadow-md">
@@ -1189,25 +1196,28 @@ func main() {
 
           {/* Text Area vs Live Markdown Render Frame */}
           <div className="w-full flex-grow flex">
-            {previewMode === "edit" ? (
-              <textarea
-                ref={textareaRef}
-                className="w-full flex-grow p-6 bg-transparent font-body-md text-body-md text-on-surface outline-none resize-none hide-scrollbar min-h-[400px] leading-relaxed placeholder-outline-variant/60"
-                placeholder="Start writing article content in Markdown format..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-              />
-            ) : (
-              <div className="w-full p-6 prose prose-invert max-w-none text-body-md font-body-md overflow-y-auto leading-relaxed max-h-[600px] hide-scrollbar select-text">
-                {content.trim() ? (
-                  <Markdown components={previewComponents} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
-                    {content}
-                  </Markdown>
-                ) : (
-                  <p className="text-on-surface-variant italic text-sm">Nothing to preview. Go back to Write and start drafting!</p>
-                )}
-              </div>
-            )}
+            <textarea
+              ref={textareaRef}
+              className={`w-full flex-grow p-6 bg-transparent font-body-md text-body-md text-on-surface outline-none resize-none hide-scrollbar min-h-[400px] leading-relaxed placeholder-outline-variant/60 ${
+                previewMode === "edit" ? "block" : "hidden"
+              }`}
+              placeholder="Start writing article content in Markdown format..."
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+            <div 
+              className={`w-full p-6 prose prose-invert max-w-none text-body-md font-body-md overflow-y-auto leading-relaxed max-h-[600px] hide-scrollbar select-text ${
+                previewMode === "preview" ? "block" : "hidden"
+              }`}
+            >
+              {content.trim() ? (
+                <Markdown components={previewComponents} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+                  {content}
+                </Markdown>
+              ) : (
+                <p className="text-on-surface-variant italic text-sm">Nothing to preview. Go back to Write and start drafting!</p>
+              )}
+            </div>
           </div>
         </div>
       </main>

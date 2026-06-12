@@ -2,7 +2,7 @@ export default function ArticleDetailsLoading() {
   return (
     <div className="w-full py-10">
       {/* Cover Image Skeleton with Shimmer */}
-      <div className="relative w-full h-48 sm:h-60 md:h-[280px] lg:h-[340px] mb-12 rounded-none sm:rounded-xl overflow-hidden border-y sm:border border-outline-variant/20 shadow-lg shimmer-skeleton"></div>
+      <div className="relative w-full h-36 sm:h-44 md:h-[180px] lg:h-[220px] mb-8 rounded-none sm:rounded-xl overflow-hidden border-y sm:border border-outline-variant/20 shadow-lg shimmer-skeleton"></div>
 
       <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
         {/* Main Column */}
